@@ -12,3 +12,9 @@ docs/demo-phone/
 
 # Private patterns the public-copy script checks for (never published)
 scripts/private-strings.local.json
+
+# The website, built by scripts/build-site.js
+_site/
+
+# The built desktop demo (rebuilt by npm run demo:build and by the Website workflow)
+docs/demo/

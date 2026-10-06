@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Media Vault</title>
+<meta name="description" content="A free, open-source library for everything you watch, read, play and listen to. A Windows app and an Android companion, with your data kept on your own server.">
+<style>
+  /* Fonts are bundled with the site (copied in by scripts/build-site.js), so visiting it loads nothing from anyone else. */
+  @font-face { font-family: "DM Serif Display"; src: url("fonts/DMSerifDisplay_400Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "DM Sans"; src: url("fonts/DMSans_400Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "DM Sans"; src: url("fonts/DMSans_700Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+
+  :root {
+    --bg: #09090e;
+    --surface: #111118;
+    --surface2: #18181f;
+    --line: #26262f;
+    --text: #f1f1f6;
+    --muted: #b4b4c6;
+    --gold: #e3aa26;
+    --gold-ink: #1a1306;
+    --blue: #5b8ff5;
+    --green: #4bb851;
+    --teal: #1cd9b3;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--gold); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 4px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3 { font-family: "DM Serif Display", Georgia, serif; font-weight: 400; line-height: 1.1; margin: 0; text-wrap: balance; }
+
+  header.top { padding: 18px 0; border-bottom: 1px solid var(--line); }
+  header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .brand { font-family: "DM Serif Display", Georgia, serif; font-size: 22px; color: var(--gold); text-decoration: none; }
+  nav a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 14px; }
+  nav a:hover { color: var(--text); }
+
+  .hero { padding: 56px 0 40px; }
+  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: 48px; align-items: center; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); margin: 0 0 14px; }
+  .hero h1 { font-size: clamp(38px, 5.4vw, 64px); }
+  .hero p.lead { font-size: 18px; color: var(--muted); max-width: 46ch; margin: 18px 0 26px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    display: inline-block; padding: 12px 20px; border-radius: 8px; font-weight: 700; font-size: 15px; text-decoration: none;
+    border: 1px solid var(--line); color: var(--text); background: var(--surface2);
+  }
+  .btn:hover { border-color: #3a3a48; }
+  .btn.primary { background: var(--gold); border-color: var(--gold); color: var(--gold-ink); }
+  .btn.primary:hover { filter: brightness(1.08); }
+  .note { font-size: 13px; color: var(--muted); margin-top: 14px; max-width: 52ch; }
+
+  /* The phone demo sits in a phone-shaped frame. */
+  .phone {
+    width: 100%; max-width: 390px; margin-inline: auto; aspect-ratio: 390 / 760; border-radius: 34px; overflow: hidden;
+    background: #09090e; box-shadow: 0 0 0 9px #181822, 0 0 0 11px #2a2a38, 0 30px 80px rgba(0,0,0,.6);
+  }
+  .phone iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  section h2 { font-size: clamp(28px, 3.6vw, 40px); margin-bottom: 10px; }
+  section p.sub { color: var(--muted); max-width: 62ch; margin: 0 0 28px; }
+
+  .desktop-frame { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+  .desktop-frame .bar { display: flex; gap: 7px; padding: 10px 14px; background: var(--surface2); border-bottom: 1px solid var(--line); }
+  .desktop-frame .bar i { width: 11px; height: 11px; border-radius: 50%; background: #3a3a48; display: block; }
+  .desktop-frame iframe { width: 100%; height: 600px; border: 0; display: block; background: #09090e; }
+  .open-full { margin-top: 12px; font-size: 14px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card h3 { font-size: 22px; margin-bottom: 8px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .types { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .types span { font-size: 13px; padding: 5px 11px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); background: var(--surface); }
+
+  ol.steps { list-style: none; counter-reset: step; padding: 0; margin: 0; display: grid; gap: 14px; max-width: 760px; }
+  ol.steps li { counter-increment: step; display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; }
+  ol.steps li::before {
+    content: counter(step); width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+    background: var(--surface2); border: 1px solid var(--line); color: var(--gold); font-weight: 700;
+  }
+  ol.steps strong { display: block; }
+  ol.steps span { color: var(--muted); font-size: 15px; }
+
+  footer { padding: 36px 0 56px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+  footer p { margin: 0; max-width: 70ch; }
+
+  @media (max-width: 860px) {
+    .hero .wrap { grid-template-columns: 1fr; gap: 36px; }
+    .desktop-frame iframe { height: 460px; }
+    nav a:first-child { margin-left: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./">The Media Vault</a>
+    <nav aria-label="Main">
+      <a href="#try">Try it</a>
+      <a href="#features">What it does</a>
+      <a href="#setup">Set up</a>
+      <a href="https://github.com/huffle-dev/The-Media-Vault">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Free · open source · yours</p>
+        <h1>One library for everything you watch, read, play and listen to.</h1>
+        <p class="lead">Keep track of movies, shows, books, audiobooks, games, music, board games, podcasts, videos and websites in one place. A Windows app, an Android companion, and a library that stays on a server you own.</p>
+        <div class="cta">
+          <a class="btn primary" href="https://github.com/huffle-dev/The-Media-Vault/releases/latest">Download for Windows</a>
+          <a class="btn" href="https://github.com/huffle-dev/The-Media-Vault/releases/latest">Android app (.apk)</a>
+          <a class="btn" href="#try">Try the demo</a>
+        </div>
+        <p class="note">The demo uses made-up ratings on real public-domain and open-source works, so nothing here is anyone's real library. The Windows installer isn't signed yet, so Windows may ask you to choose <em>More info → Run anyway</em>.</p>
+      </div>
+      <div class="phone"><iframe src="demo-phone/app/" title="The Media Vault phone app demo" loading="lazy"></iframe></div>
+    </div>
+  </div>
+
+  <section id="try">
+    <div class="wrap">
+      <h2>Try the Windows app in your browser</h2>
+      <p class="sub">This is the real desktop interface running on a sample library. Click around: open an item, change a status, rate something, make a list. Nothing is saved, and online search and sync are switched off.</p>
+      <div class="desktop-frame">
+        <div class="bar" aria-hidden="true"><i></i><i></i><i></i></div>
+        <iframe src="demo/" title="The Media Vault desktop app demo" loading="lazy"></iframe>
+      </div>
+      <p class="open-full"><a href="demo/">Open the desktop demo full size</a> · <a href="demo-phone/">Open the phone demo full size</a></p>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>What it does</h2>
+      <p class="sub">Everything you keep track of, in one library that follows you between your computer and your phone.</p>
+      <div class="grid">
+        <div class="card"><h3>Every kind of thing</h3><p>Search the internet for covers and details, scan a barcode, share a link from another app, or add things by hand.</p></div>
+        <div class="card"><h3>See where you are</h3><p>Wishlist, not started, in progress, consumed, dropped. Rate things, keep lists and favourites, and look back at what you finished and when.</p></div>
+        <div class="card"><h3>Find what's next</h3><p>Discover suggests things based on what you already like, and Where to Watch shows which streaming service has a title.</p></div>
+        <div class="card"><h3>Works offline</h3><p>Save your whole library, covers included, to the phone and browse it with no connection.</p></div>
+        <div class="card"><h3>Your data stays yours</h3><p>The library syncs through a free Supabase project that you create. There's no account with us, no tracking and no adverts.</p></div>
+        <div class="card"><h3>Open source</h3><p>Released under the MIT licence. Read it, change it, build it yourself, or tell us what's broken.</p></div>
+      </div>
+      <div class="types" aria-label="Kinds of media">
+        <span>Movies</span><span>TV</span><span>Books</span><span>Audiobooks</span><span>Games</span><span>Music</span><span>Board games</span><span>Podcasts</span><span>Web videos</span><span>Websites</span><span>Your own types</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="setup">
+    <div class="wrap">
+      <h2>Getting started takes about ten minutes</h2>
+      <p class="sub">You only need an account for the free server that holds your library, and it's yours alone.</p>
+      <ol class="steps">
+        <li><div><strong>Install the Windows app</strong><span>Download it from the latest release and run it.</span></div></li>
+        <li><div><strong>Make your free server</strong><span>Create a free Supabase project and paste in the setup file the app gives you. The <a href="https://github.com/huffle-dev/The-Media-Vault/blob/main/docs/setup-your-server.md">setup guide</a> walks through every click.</span></div></li>
+        <li><div><strong>Create your account in the app</strong><span>No separate sign-up page. The app does it for you.</span></div></li>
+        <li><div><strong>Scan one code with your phone</strong><span>The app shows a QR code; the Android app reads it and signs in.</span></div></li>
+      </ol>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>The Media Vault is free software under the <a href="https://github.com/huffle-dev/The-Media-Vault/blob/main/LICENSE">MIT licence</a>. It isn't affiliated with or endorsed by any of the services it can look things up on. The cover pictures in the demos are public-domain, Creative Commons or open-source images, each under its own licence: see the <a href="https://github.com/huffle-dev/The-Media-Vault/blob/main/demo/CREDITS.md">picture credits</a>.</p>
+    <p><a href="https://github.com/huffle-dev/The-Media-Vault">Source</a> · <a href="https://github.com/huffle-dev/The-Media-Vault/issues">Report a problem</a> · <a href="privacy.html">Privacy</a></p>
+  </div>
+</footer>
+
+</body>
+</html>

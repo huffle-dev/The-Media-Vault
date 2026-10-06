@@ -3,9 +3,14 @@ name: Release
 # Push a tag like v1.0.1 (after bumping "version" in package.json to match) and this builds the
 # Windows installer and attaches it to a release for that tag. The Android APK is built separately
 # with EAS and added to the release by hand (see docs/release-checklist.md).
+#
+# You can also run it by hand without tagging (Actions -> Release -> Run workflow): it builds the installer and
+# keeps it as a downloadable file on the run's page (for 30 days), without making a release. Handy for trying the
+# installer GitHub produces before cutting a version.
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -22,15 +27,24 @@ jobs:
       - run: npm ci
       - run: npm test
       - name: Check the tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
           pkg="v$(node -p "require('./package.json').version")"
           if [ "$pkg" != "${GITHUB_REF_NAME}" ]; then echo "Tag ${GITHUB_REF_NAME} does not match package.json version ${pkg}"; exit 1; fi
       - run: npm run dist
       - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${GITHUB_REF_NAME}" release/TheMediaVault-Setup-*.exe \
             --title "The Media Vault ${GITHUB_REF_NAME}" --generate-notes --verify-tag
+      - name: Keep the installer from a manual run
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: TheMediaVault-Setup
+          path: release/TheMediaVault-Setup-*.exe
+          retention-days: 30

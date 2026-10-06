@@ -7,6 +7,8 @@ phone runs through a free server you create yourself, so nobody else ever holds 
 
 Free and open source ([MIT](LICENSE)). No account with the makers, no ads, no tracking.
 
+**[Try it in your browser](https://huffle-dev.github.io/The-Media-Vault/)**: the real Windows and phone apps running on a sample library of public-domain and open-source works (nothing is saved).
+
 <!-- Screenshots: add docs/screenshots/*.png and link them here. -->
 
 ## Download

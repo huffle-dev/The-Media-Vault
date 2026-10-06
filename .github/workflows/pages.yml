@@ -1,0 +1,61 @@
+name: Website
+
+# Builds the website (the landing page plus both online demos, see scripts/build-site.js) and publishes it with
+# GitHub Pages at https://<owner>.github.io/<repository>/.
+#
+# One-time setup, in the repository's settings: Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+# Until that is switched on the "Deploy" step below has nothing to publish to and fails; after it is on, re-run this
+# workflow (Actions -> Website -> Run workflow) and every push that changes the site or the demos republishes it.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - "demo/**"
+      - "mobile/**"
+      - "packages/core/**"
+      - "components/**"
+      - "views/**"
+      - "modals/**"
+      - "settings/**"
+      - "hooks/**"
+      - "scripts/build-site.js"
+      - "scripts/build-phone-demo.js"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      # --ignore-scripts: the demos need none of the native programs (Electron, SQLite) that install scripts fetch or compile.
+      - run: npm ci --ignore-scripts
+      - run: node scripts/build-site.js --base=/${{ github.event.repository.name }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

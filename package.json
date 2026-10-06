@@ -29,7 +29,8 @@
     "demo:build": "vite build --config demo/vite.config.mjs",
     "demo:dev": "vite --config demo/vite.config.mjs",
     "demo:phone": "node scripts/build-phone-demo.js",
-    "demo:phone:dev": "node scripts/dev-phone-demo.js"
+    "demo:phone:dev": "node scripts/dev-phone-demo.js",
+    "site:build": "node scripts/build-site.js"
   },
   "dependencies": {
     "@media-vault/core": "*",
