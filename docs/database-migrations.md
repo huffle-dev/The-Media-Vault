@@ -4,69 +4,44 @@ Notes from a real bug (fresh installs were missing 4 Board Game columns —
 see `database.js`) that turned into a useful lesson about why migrations
 exist at all, and how they relate to git.
 
-## Current status (2026-10-04): schema v52, a real chain from v26
+## Current status (2026-10-06): baseline at schema v52, no upgrade steps yet
 
-Not an empty chain any more. After the 2026-08-06 collapse the chain was
-restarted at `v26` and has grown to `v52` (Cloud Sync's `sync_id`/tombstones,
-the Film→Movie rename, dismissals, cover-art sources, ...). `_createSchema()`
-is what a fresh install gets (it jumps straight to `LATEST_SCHEMA_VERSION`);
-`_migrate()` carries an existing database forward one `if (version < N)` step
-at a time. Only the developer's own database has ever existed, so none of it
-is "shipped" yet in the sense that matters below.
+The upgrade chain (v26 to v52) was **collapsed into `_createSchema()` on 2026-10-06**, right after v1.0.0 was
+published and before anyone but the developer had a database. Schema **v52 is the baseline**:
 
-### Safety nets that exist now
+- `_createSchema()` is the only source of truth for what a fresh install gets (it sets `user_version` straight to
+  `LATEST_SCHEMA_VERSION`, 52).
+- `_migrate()` now holds only guards: a database **newer** than the code is refused ("update The Media Vault"), and one
+  **older than `BASELINE_SCHEMA_VERSION`** (52) is refused too, because its upgrade steps no longer exist. There are no
+  `if (version < N)` steps at the moment.
+- The first schema change from here on is a **new permanent step** (`if (version < 53) { ...; PRAGMA user_version = 53 }`
+  with `LATEST_SCHEMA_VERSION` raised to 53), written once and never edited or deleted. `BASELINE_SCHEMA_VERSION` stays 52.
+- `'MTG'` was dropped from the `media_type` CHECK lists in `_createSchema()` (Magic was removed from the app; v51 had
+  already deleted leftover rows). A database created before the collapse still carries `'MTG'` in its CHECK; harmless.
 
-- **`test/schemaParity.test.js`** — builds a fresh install and a database
-  carried from the v25 schema (`test/fixtures/schema_v25.sql`) through every
-  migration, and compares tables, columns, types, defaults, indexes, foreign
-  keys and `CHECK` lists. It already caught a real bug: the v47 step did an
-  unconditional `ALTER TABLE ... ADD COLUMN` on a table `_createSchema()` had
-  just created in its final shape, so upgrading from before v46 crashed.
-  Fixed (`_hasColumn`). **Any new migration must keep this test green.**
-  Two known, intended differences are normalised in the test: a migrated
-  `updated_at` is plain nullable (SQLite can't `ADD COLUMN` with a
-  non-constant default) and unique constraints are compared by column, not
-  name (inline `UNIQUE` vs a later `CREATE UNIQUE INDEX`).
-- **Automatic backup** — before a database that's behind
-  `LATEST_SCHEMA_VERSION` is touched, `initialise()` writes
-  `vault.db.pre-v<N>.bak` next to it (`VACUUM INTO`, a consistent snapshot) and
-  keeps the three newest. To undo a migration, close the app and put that file
-  back as `vault.db`. A failed backup is logged, never blocks start-up.
+### Safety nets
+
+- **`test/schemaParity.test.js`**: builds a fresh install and a database loaded from `test/fixtures/schema_v52.sql`
+  (the baseline, written by `scripts/make-schema-baseline.js`; **never regenerate it** or the test stops checking
+  anything), runs the app's upgrade steps on it, and compares tables, columns, types, defaults, indexes, foreign keys and
+  `CHECK` lists. Today it is trivially satisfied; the moment a v53 step exists it catches a column added to only one of
+  the two paths. **Any new migration must keep it green.** Two known, intended differences are normalised: a migrated
+  `updated_at` is plain nullable (SQLite can't `ADD COLUMN` with a non-constant default), and unique constraints are
+  compared by column, not name.
+- **Automatic backup**: before a database that's behind `LATEST_SCHEMA_VERSION` is touched (or refused), `initialise()`
+  writes `vault.db.pre-v<N>.bak` next to it (`VACUUM INTO`, a consistent snapshot) and keeps the three newest. To undo a
+  migration, close the app and put that file back as `vault.db`. A failed backup is logged, never blocks start-up.
   (`test/migrationSafety.test.js`)
-- **`supabase/schema_current.sql`** — the cloud schema in one re-runnable file
-  (the five hand-applied files merged; they stay as history).
-  `test/supabaseSchema.test.js` fails if Cloud Sync pushes an item column the
-  file doesn't create. The cloud has no migration framework: a new column
-  means adding it to this file *and* running it once in the SQL editor.
-
-### The baseline decision (do this once, right before the first public release)
-
-Because nobody but the developer has a database, the whole `v26`-`v52` chain
-can be collapsed again, exactly as the v1-v25 chain was: make
-`_createSchema()` the only source of truth at the then-current version, empty
-`_migrate()`, regenerate `test/fixtures/` to the new baseline, and keep the
-parity test pointing at it. **The moment a build leaves the developer's
-machine that collapse can never be repeated** — from then on every schema
-change is a new permanent `if (version < N)` step, never edited or deleted.
-Until then, new steps are cheap to add and cheap to fold away later.
+- **`supabase/schema_current.sql`**: the cloud schema in one re-runnable file. `test/supabaseSchema.test.js` fails if Cloud
+  Sync pushes an item column the file doesn't create. The cloud has no migration framework: a new column means adding it
+  to this file *and* running it once in the SQL editor.
 
 ### Deliberately not done
 
-- **Dropping unused columns.** `media_items` has ~119 columns and about 25
-  hold no data. Most belong to fields the UI offers but nothing has filled
-  yet (Tabletop Game, Graphic Novel, custom types, `owned_platform`,
-  `condition`, `personal_notes`), and each one is threaded through
-  `database.js`'s insert/update/import statements, `lib/cloudSync.js`,
-  `csv.js`, the editors and the phone's selects. Removing them is a large,
-  risky diff for no behavioural gain; a nullable empty column costs nothing.
-  Revisit at the baseline collapse if a column is still referenced nowhere
-  but its own definition (`hardcover_*`, `anilist_score`, `chapter_count`,
-  `total_volumes` are the candidates).
-- **Removing `'MTG'` from the `media_type` CHECK lists.** Magic was removed
-  from the app; v51 deletes any leftover MTG rows (with sync tombstones), but
-  dropping a value from a `CHECK` needs a full rebuild of the 119-column
-  table. Nothing can insert one any more, so the value is harmless; it goes
-  away naturally when the baseline is collapsed.
+- **Dropping unused columns.** `media_items` has ~119 columns and about 25 hold no data. Removing them is a large, risky
+  diff for no behavioural gain (each is threaded through `database.js`, `lib/cloudSync.js`, `csv.js`, the editors and the
+  phone's selects); a nullable empty column costs nothing. Candidates, if ever: `hardcover_*`, `anilist_score`,
+  `chapter_count`, `total_volumes`.
 
 ## Git tracks code. Migrations track data.
 
@@ -101,8 +76,7 @@ stuck.
 
 ## Old migrations are frozen snapshots — don't unify them
 
-(Applies from the first public release on — until then the chain can still be
-collapsed, see the baseline decision above.) A full-table-recreate
+(Applies from the baseline, schema v52, on.) A full-table-recreate
 migration has its own complete, hand-typed `CREATE TABLE`. That looks like
 duplication, and in a sense it is — but it's duplication that has to stay:
 

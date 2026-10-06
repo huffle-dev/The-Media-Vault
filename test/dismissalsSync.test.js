@@ -94,44 +94,4 @@ describe("discovery dismissals — soft delete and Cloud Sync", () => {
     expect(db.getDiscoveryDismissals()).toEqual([]);
   });
 
-  it("the v47 migration adds the sync columns to an existing v46 table", () => {
-    db.db.exec(`
-      DROP TABLE discovery_dismissed;
-      CREATE TABLE discovery_dismissed (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, media_type TEXT NOT NULL, tmdb_id TEXT NOT NULL,
-        title TEXT, dismissed_at TEXT NOT NULL DEFAULT (datetime('now')), UNIQUE (media_type, tmdb_id)
-      );
-      INSERT INTO discovery_dismissed (media_type, tmdb_id, title, dismissed_at) VALUES ('Movie', '9', 'Old', '2026-01-02 03:04:05');
-      PRAGMA user_version = 46;
-    `);
-    db.db.close();
-
-    db = new VaultDatabase(dbPath);
-    db.initialise();
-
-    const row = db.db.prepare(`SELECT updated_at, deleted_at FROM discovery_dismissed WHERE tmdb_id = '9'`).get();
-    // v47 adds and backfills the columns (from dismissed_at); v48 then
-    // re-stamps live rows as changed — see the next test.
-    expect(row.deleted_at).toBeNull();
-    expect(row.updated_at).toBeTruthy();
-    expect(db.getDiscoveryDismissals()).toHaveLength(1);
-  });
-
-  it("the v48 migration re-stamps live dismissals so pre-v47 ones finally upload", async () => {
-    db.dismissDiscoveryItem("Movie", "1", "Old Live");
-    db.dismissDiscoveryItem("Movie", "2", "Old Undone");
-    db.undismissDiscoveryItem(db.getDiscoveryDismissals().find((d) => d.tmdb_id === "2").id);
-    db.db.prepare(`UPDATE discovery_dismissed SET updated_at = '2020-01-01 00:00:00'`).run();
-    db.db.exec("PRAGMA user_version = 47;");
-    db.db.close();
-
-    db = new VaultDatabase(dbPath);
-    db.initialise();
-
-    // Last sync happened well after the original dismissal dates.
-    const supabase = fakeSupabase();
-    await cloudSync.pushChanges(db, supabase, { ...pushOpts, since: "2026-01-01 00:00:00" });
-    const up = supabase.upserts.find((u) => u.name === "discovery_dismissed");
-    expect(up.rows.map((r) => r.tmdb_id)).toEqual(["1"]);
-  });
 });

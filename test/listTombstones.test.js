@@ -117,16 +117,6 @@ describe("list membership removals sync (tombstones)", () => {
     expect(db.db.prepare(`SELECT COUNT(*) AS n FROM list_items`).get().n).toBe(0);
   });
 
-  it("the v49 migration adds the tombstone tables to an existing v48 database", () => {
-    db.db.exec(`DROP TABLE list_item_tombstones; DROP TABLE list_tombstones; PRAGMA user_version = 48;`);
-    db.db.close();
-    db = new VaultDatabase(dbPath);
-    db.initialise();
-    db.addItemsToList(list.id, [item.id]);
-    expect(() => db.removeItemFromList(list.id, item.id)).not.toThrow();
-    expect(db.db.prepare(`SELECT COUNT(*) AS n FROM list_item_tombstones`).get().n).toBe(1);
-  });
-
   it("pull doesn't blow up on a remote list whose name already exists locally", async () => {
     const remoteList = { sync_id: "11111111-1111-4111-8111-111111111111", name: "heist FILMS", is_default: false, updated_at: "2026-09-24T09:00:00+00:00", deleted_at: null };
     await expect(cloudSync.pullChanges(db, fakeSupabase({ lists: [remoteList] }), "1970-01-01T00:00:00")).resolves.toBeTruthy();

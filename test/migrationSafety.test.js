@@ -15,9 +15,8 @@ afterEach(() => {
   for (const d of dirs.splice(0)) { try { fs.rmSync(d, { recursive: true, force: true }); } catch { /* handle still open on Windows */ } }
 });
 
-// A database at the given schema version with a few rows, made by creating a
-// fresh one and then winding user_version back (the v51 step only deletes
-// rows, so the schema shape doesn't matter).
+// A database at the given schema version with a few rows, made by creating a fresh one and then setting
+// user_version (only the version number matters to the open/refuse/backup behaviour tested here).
 function libraryAt(version, dir) {
   const file = path.join(dir, "vault.db");
   const db = new VaultDatabase(file);
@@ -25,7 +24,7 @@ function libraryAt(version, dir) {
   db.close();
   const raw = new Database(file);
   const add = raw.prepare(`INSERT INTO media_items (title, media_type, sync_id) VALUES (?, ?, ?)`);
-  add.run("Ashnod's Cylix", "MTG", "sync-mtg-1");
+  add.run("A Game", "Game", "sync-game-1");
   add.run("A Film", "Movie", "sync-movie-1");
   raw.prepare(`INSERT INTO list_items (list_id, item_id) VALUES (1, 1)`).run();
   raw.pragma(`user_version = ${version}`);
@@ -33,45 +32,42 @@ function libraryAt(version, dir) {
   return file;
 }
 
-describe("v51: leftover MTG items are removed the way an in-app delete does", () => {
-  it("deletes MTG rows, tombstones them for sync, and leaves everything else", () => {
-    const file = libraryAt(50, makeDir());
-    const db = new VaultDatabase(file);
-    db.initialise();
-    const rows = db.db.prepare(`SELECT title, media_type FROM media_items`).all();
-    expect(rows).toEqual([{ title: "A Film", media_type: "Movie" }]);
-    expect(db.db.prepare(`SELECT sync_id FROM item_tombstones`).all()).toEqual([{ sync_id: "sync-mtg-1" }]);
-    expect(db.db.prepare(`SELECT COUNT(*) n FROM list_items`).get().n).toBe(0); // membership went with it
-    expect(db.db.pragma("user_version", { simple: true })).toBe(52);
-    db.close();
+const tryOpen = (file) => {
+  const db = new VaultDatabase(file);
+  try { db.initialise(); } finally { db.close(); }
+};
+
+describe("opening a database against the baseline (schema v52)", () => {
+  it("opens one at the current version and keeps its rows", () => {
+    const file = libraryAt(52, makeDir());
+    tryOpen(file);
+    const raw = new Database(file, { readonly: true });
+    expect(raw.prepare(`SELECT COUNT(*) n FROM media_items`).get().n).toBe(2);
+    expect(raw.pragma("user_version", { simple: true })).toBe(52);
+    raw.close();
   });
 
-  it("does nothing on a library with no MTG items", () => {
-    const dir = makeDir();
-    const file = libraryAt(50, dir);
-    const raw = new Database(file);
-    raw.prepare(`DELETE FROM media_items WHERE media_type = 'MTG'`).run();
-    raw.close();
-    const db = new VaultDatabase(file);
-    db.initialise();
-    expect(db.db.prepare(`SELECT COUNT(*) n FROM media_items`).get().n).toBe(1);
-    expect(db.db.prepare(`SELECT COUNT(*) n FROM item_tombstones`).get().n).toBe(0);
-    db.close();
+  it("refuses one from a NEWER version, with a message that says to update", () => {
+    const file = libraryAt(53, makeDir());
+    expect(() => tryOpen(file)).toThrow(/newer version of The Media Vault \(schema v53/);
+  });
+
+  it("refuses one older than the baseline, saying how old it is and what the oldest openable is", () => {
+    const file = libraryAt(50, makeDir());
+    expect(() => tryOpen(file)).toThrow(/older version of The Media Vault \(schema v50\).*oldest it can open is v52/);
   });
 });
 
-describe("automatic backup before a migration", () => {
-  it("copies the old database next to the live one, holding the pre-migration rows", () => {
+describe("automatic backup before a database is changed or refused", () => {
+  it("copies an out-of-date database next to the live one first, holding its rows", () => {
     const dir = makeDir();
     const file = libraryAt(50, dir);
-    const db = new VaultDatabase(file);
-    db.initialise();
-    db.close();
+    expect(() => tryOpen(file)).toThrow();
     const backup = `${file}.pre-v50.bak`;
     expect(fs.existsSync(backup)).toBe(true);
     const old = new Database(backup, { readonly: true });
     expect(old.pragma("user_version", { simple: true })).toBe(50);
-    expect(old.prepare(`SELECT COUNT(*) n FROM media_items WHERE media_type = 'MTG'`).get().n).toBe(1); // still there in the copy
+    expect(old.prepare(`SELECT COUNT(*) n FROM media_items`).get().n).toBe(2);
     old.close();
   });
 
@@ -96,9 +92,7 @@ describe("automatic backup before a migration", () => {
       const past = new Date(Date.now() - (50 - v) * 3600_000);
       fs.utimesSync(`${file}.pre-v${v}.bak`, past, past);
     }
-    const db = new VaultDatabase(file);
-    db.initialise();
-    db.close();
+    expect(() => tryOpen(file)).toThrow();
     const left = fs.readdirSync(dir).filter((f) => f.endsWith(".bak")).sort();
     expect(left).toEqual(["vault.db.pre-v42.bak", "vault.db.pre-v43.bak", "vault.db.pre-v50.bak"]);
   });

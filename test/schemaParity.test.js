@@ -6,13 +6,16 @@ import Database from "better-sqlite3";
 import VaultDatabase from "../database.js";
 
 // A database created by a fresh install (database.js's _createSchema) and one
-// carried forward from schema v25 through every migration must end up with
+// carried forward from the baseline through every upgrade step must end up with
 // the SAME schema. Without this, the two paths can drift silently — a column
 // added only to _createSchema, or only by a migration, which is exactly how
 // fresh installs once ended up missing four Board Game columns.
 //
-// test/fixtures/schema_v25.sql is what database.js produced just before the
-// v26 migration existed (the oldest state the chain can still upgrade).
+// test/fixtures/schema_v52.sql is the schema a fresh install produced when the
+// upgrade chain was collapsed into the baseline (written by
+// scripts/make-schema-baseline.js; never regenerate it). It is the oldest state
+// the code can still upgrade. Until the first step above v52 is added, the two
+// paths are trivially the same; the moment one is added this test starts to bite.
 
 const tmp = [];
 const tmpPath = (tag) => {
@@ -66,10 +69,10 @@ function freshInstall() {
   return file;
 }
 
-function upgradedFromV25(seed) {
-  const file = tmpPath("v25");
+function upgradedFromBaseline(seed) {
+  const file = tmpPath("baseline");
   const raw = new Database(file);
-  raw.exec(fs.readFileSync(path.join(__dirname, "fixtures", "schema_v25.sql"), "utf8"));
+  raw.exec(fs.readFileSync(path.join(__dirname, "fixtures", "schema_v52.sql"), "utf8"));
   if (seed) seed(raw);
   raw.close();
   const db = new VaultDatabase(file);
@@ -78,22 +81,22 @@ function upgradedFromV25(seed) {
   return file;
 }
 
-describe("schema parity: fresh install vs the migration chain from v25", () => {
+describe("schema parity: fresh install vs the baseline carried through every upgrade step", () => {
   it("both end at the latest schema version", () => {
     const fresh = describeSchema(freshInstall());
-    const migrated = describeSchema(upgradedFromV25());
+    const migrated = describeSchema(upgradedFromBaseline());
     expect(migrated.version).toBe(fresh.version);
   });
 
   it("have the same tables", () => {
     const fresh = describeSchema(freshInstall());
-    const migrated = describeSchema(upgradedFromV25());
+    const migrated = describeSchema(upgradedFromBaseline());
     expect(Object.keys(migrated.tables)).toEqual(Object.keys(fresh.tables));
   });
 
   it("have the same columns, types, defaults and constraints in every table", () => {
     const fresh = describeSchema(freshInstall());
-    const migrated = describeSchema(upgradedFromV25());
+    const migrated = describeSchema(upgradedFromBaseline());
     const diffs = [];
     for (const name of Object.keys(fresh.tables)) {
       const f = fresh.tables[name], m = migrated.tables[name];
@@ -118,18 +121,17 @@ describe("schema parity: fresh install vs the migration chain from v25", () => {
     expect(diffs).toEqual([]);
   });
 
-  it("keeps an existing library intact and translates the old type names", () => {
-    const file = upgradedFromV25((raw) => {
+  it("keeps an existing library intact when a baseline database is opened", () => {
+    const file = upgradedFromBaseline((raw) => {
       const add = raw.prepare(`INSERT INTO media_items (title, media_type) VALUES (?, ?)`);
-      add.run("An Old Film", "Film");
+      add.run("A Film", "Movie");
       add.run("A Game", "Game");
       raw.prepare(`INSERT INTO lists (name, is_default) VALUES ('Mine', 0)`).run();
       raw.prepare(`INSERT INTO list_items (list_id, item_id) VALUES (1, 1)`).run();
     });
     const db = new Database(file, { readonly: true });
-    const rows = db.prepare(`SELECT title, media_type, sync_id FROM media_items ORDER BY id`).all();
-    expect(rows.map((r) => [r.title, r.media_type])).toEqual([["An Old Film", "Movie"], ["A Game", "Game"]]);
-    expect(rows.every((r) => r.sync_id)).toBe(true);
+    const rows = db.prepare(`SELECT title, media_type FROM media_items ORDER BY id`).all();
+    expect(rows.map((r) => [r.title, r.media_type])).toEqual([["A Film", "Movie"], ["A Game", "Game"]]);
     expect(db.prepare(`SELECT COUNT(*) n FROM list_items`).get().n).toBe(1);
     db.close();
   });

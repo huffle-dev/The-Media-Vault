@@ -17,17 +17,7 @@ mechanical and is spelled out so it can be done in one sitting.
 
 These cannot be repeated once a build is in someone else's hands.
 
-1. **Collapse the database migrations into one baseline.** Today `database.js` has a real
-   migration chain (v26 → v51) and `test/schemaParity.test.js` proves a fresh install and an
-   upgraded one match. Once other people have databases, never delete or edit a step — add a new
-   one. So, while only your own database exists:
-   - make `_createSchema()` the only source of truth at the current version, delete the
-     `if (version < N)` steps from `_migrate()`, and keep `LATEST_SCHEMA_VERSION`;
-   - regenerate `test/fixtures/` to the new baseline and keep the parity test pointing at it;
-   - delete the tests that wind a database back to v46–v50 and re-run a single migration
-     (`dismissalsSync`, `listTombstones`, `itemTombstones`);
-   - this also drops `'MTG'` from the `media_type` CHECK lists.
-   Details and reasoning: `docs/database-migrations.md`.
+1. ~~**Collapse the database migrations into one baseline.**~~ **Done 2026-10-06** (schema v52 is the baseline; `'MTG'` dropped from the CHECK lists; see `docs/database-migrations.md`). From here every schema change is a new permanent step.
 2. **Empty the built-in server.** In `lib/supabaseConfig.js` and `mobile/supabase.js` set both
    `LEGACY` strings to `""`. A downloaded build then starts with no server and asks for one.
    (Your own already-signed-in installs keep working: they saved their server to settings.)

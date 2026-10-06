@@ -102,13 +102,4 @@ describe("item deletions sync (tombstones)", () => {
     expect(db.db.prepare(`SELECT COUNT(*) AS n FROM item_tombstones`).get().n).toBe(0);
   });
 
-  it("the v50 migration adds the table to an existing v49 database", () => {
-    db.db.exec(`DROP TABLE item_tombstones; PRAGMA user_version = 49;`);
-    db.db.close();
-    db = new VaultDatabase(dbPath);
-    db.initialise();
-    const a = add("A");
-    expect(() => db.deleteItem(a.id)).not.toThrow();
-    expect(db.db.prepare(`SELECT COUNT(*) AS n FROM item_tombstones`).get().n).toBe(1);
-  });
 });
