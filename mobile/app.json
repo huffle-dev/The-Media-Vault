@@ -11,7 +11,7 @@
     },
     "android": {
       "package": "app.mediavault.mobile",
-      "versionCode": 14,
+      "versionCode": 15,
       "adaptiveIcon": {
         "backgroundColor": "#09090e",
         "foregroundImage": "./assets/android-icon-foreground.png",

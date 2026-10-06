@@ -9,7 +9,7 @@
 // shows — read-only — with no connection. Edits (status, rating, your notes)
 // write straight to Supabase by sync_id; desktop picks them up on its next
 // pull by comparing updated_at like any other device's edit.
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Image, Linking, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import Text from "./Text";
 import TextInput from "./TextInput";
@@ -24,20 +24,17 @@ import { deleteItem } from "./itemActions";
 import { useLibrary } from "./LibraryContext";
 import { deletedMessage, previousValues, savedMessage } from "./itemUndo";
 import BottomSheet from "./BottomSheet";
+import UndoBar from "./UndoBar";
 import AppButton from "./AppButton";
 import { externalRatingStats, externalLinks, sourceLabel, parseTracklist } from "./profileData";
 import WhereToWatchCard from "./WhereToWatchCard";
 import { reportCoverError } from "./coverHealing";
 import { fetchOwnership, ownedText } from "./ownership";
-import * as ImagePicker from "expo-image-picker";
-import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
-import { File } from "expo-file-system";
-import { coverAspectFor, replaceCover } from "./coverUpload";
 import { fetchRefreshDetails, buildRefreshPatch, saveRefresh } from "./refreshItem";
 import { refreshServicesFor } from "./mediaServices";
 import { getCoverArtSourceUrl } from "./coverArtStorage";
 import { SYNCED_DETAIL_FIELDS } from "./addToLibrary";
-import { bulkSetOwned } from "./bulkActions";
+import { bulkSetOwned, bulkSetHidden } from "./bulkActions";
 import { getEffectiveTypeConfig, TYPE_FIELDS } from "@media-vault/core/tokens/mediaTypes.js";
 import { customValueText, parseCustomFields, withCustomTypeId } from "./customTypes";
 import { formatRating, ratingColor, ratingToDisplay, ratingToStored, buildStatusChangePatch } from "@media-vault/core/tokens/ratings.js";
@@ -98,7 +95,7 @@ function Description({ text }) {
   );
 }
 
-function Hero({ item, keys, type }) {
+function Hero({ item, keys, type, genres, ownedControl }) {
   const artUri = useCoverArt(item, keys);
   const square = isSquareArt(item.media_type);
   return (
@@ -120,6 +117,12 @@ function Hero({ item, keys, type }) {
         <Text style={styles.meta}>{[item.creator, item.year].filter(Boolean).join(" · ")}</Text>
         {(item.media_type === "Movie" || item.media_type === "TV") && item.content_rating
           ? <Text style={styles.contentRating}>{item.content_rating}</Text> : null}
+        {genres.length > 0 && (
+          <View style={styles.heroChips}>
+            {genres.map((g) => <Text key={g} style={styles.chip}>{g}</Text>)}
+          </View>
+        )}
+        {ownedControl}
       </View>
     </View>
   );
@@ -127,7 +130,7 @@ function Hero({ item, keys, type }) {
 
 export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem, onAdded, onEdit, onDeleted, reloadKey, readOnly: offlineFlag }) {
   const { keys } = useApiKeys();
-  const { offerUndo, customTypes, deviceId, phoneOwnedIds, otherOwnedIds, refreshLists, reload } = useLibrary();
+  const { offerUndo, undo, undoBusy, runUndo, dismissUndo, customTypes, deviceId, phoneOwnedIds, otherOwnedIds, refreshLists, reload } = useLibrary();
   const [item, setItem] = useState(null);
   const [fromCache, setFromCache] = useState(false);
   const [loadError, setLoadError] = useState(null);
@@ -135,14 +138,12 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
   const [ratingDisplay, setRatingDisplay] = useState(null); // -10..+10, or null
   const [dateConsumed, setDateConsumed] = useState(null);
   const [personalNotes, setPersonalNotes] = useState("");
-  const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   // Who has this marked owned: { mine: this phone, others: [device names] }.
   const [ownedOn, setOwnedOn] = useState(null);
   const [markingOwned, setMarkingOwned] = useState(false);
-  const [changingCover, setChangingCover] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const readOnly = offlineFlag || fromCache;
@@ -224,50 +225,103 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
     }
   }
 
-  // Replace the cover with a picture from this phone: pick and crop, shrink, upload to your own
-  // server, point the item at it. Desktop and other devices get it through sync.
-  async function changeCover() {
-    if (readOnly || changingCover) return;
-    setChangingCover(true);
+  // The profile has no Save button: a change is saved as it is made (with the Undo bar), so what you see is what
+  // is stored. Status saves at once; the rating a moment after the last tap; your notes when you leave the box.
+  const itemRef = useRef(null);
+  itemRef.current = item;
+  const pendingRating = useRef(undefined); // undefined = nothing waiting; otherwise { value }
+  const ratingTimer = useRef(null);
+  const notesRef = useRef("");
+  notesRef.current = personalNotes;
+
+  // Puts the screen's status / rating / date / notes back in line with a row (after an Undo).
+  function syncFields(row) {
+    setStatus(row.status);
+    setRatingDisplay(row.rating != null ? ratingToDisplay(row.rating) : null);
+    setDateConsumed(row.date_consumed || null);
+    setPersonalNotes(row.personal_notes || "");
+  }
+
+  async function persist(patch) {
+    if (readOnly || !itemRef.current) return false;
     setSaveError(null);
-    try {
-      const picked = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ["images"], allowsEditing: true, quality: 1,
-        aspect: coverAspectFor({ squareArt: isSquareArt(item.media_type), wideArt: isWideArt(item) }),
-      });
-      if (picked.canceled || !picked.assets || !picked.assets[0]) return;
-      const asset = picked.assets[0];
-      const edit = ImageManipulator.manipulate(asset.uri);
-      edit.resize({ width: Math.min(600, asset.width || 600) });
-      const image = await edit.renderAsync();
-      const saved = await image.saveAsync({ format: SaveFormat.JPEG, compress: 0.85 });
-      const bytes = await new File(saved.uri).arrayBuffer();
-      const { data } = await supabase.auth.getUser();
-      const before = item;
-      const result = await replaceCover({ client: supabase, userId: data.user.id, item, bytes });
-      const next = { ...item, cover_art_url: result.url };
-      setItem(next);
-      saveItemCache(next);
-      offerUndo({
-        message: `New cover for ${item.title}`, failed: 0,
-        undo: async () => { await result.undo(); saveItemCache(before); },
-      });
-      reload();
-    } catch (e) {
-      setSaveError(e.message);
-    } finally {
-      setChangingCover(false);
-    }
+    const current = itemRef.current;
+    const full = { ...patch, updated_at: new Date().toISOString() };
+    const { error } = await supabase.from("items").update(full).eq("sync_id", syncId);
+    if (error) { setSaveError(error.message); return false; }
+    const before = previousValues(current, patch);
+    const next = { ...current, ...full };
+    itemRef.current = next;
+    setItem(next);
+    saveItemCache(next);
+    offerUndo({
+      message: savedMessage(current), failed: 0,
+      undo: async () => {
+        const restore = { ...before, updated_at: new Date().toISOString() };
+        const { error: e } = await supabase.from("items").update(restore).eq("sync_id", syncId);
+        if (e) throw e;
+        const restored = { ...itemRef.current, ...restore };
+        itemRef.current = restored;
+        setItem(restored);
+        syncFields(restored);
+        saveItemCache(restored);
+        onSaved(restored);
+      },
+    });
+    onSaved(next);
+    return true;
   }
 
   function selectStatus(next) {
-    if (readOnly) return;
+    if (readOnly || next === status) return;
     // Same rules as desktop's status wheel: leaving both ratable statuses
     // clears the rating; entering one defaults the date to today.
-    const patch = buildStatusChangePatch({ ...item, date_consumed: dateConsumed }, next);
+    const patch = buildStatusChangePatch({ ...itemRef.current, date_consumed: dateConsumed }, next);
     setStatus(next);
     if ("rating" in patch) setRatingDisplay(null);
     if (patch.date_consumed) setDateConsumed(patch.date_consumed);
+    pendingRating.current = undefined; // a status change settles the rating itself
+    clearTimeout(ratingTimer.current);
+    persist({ ...patch, status: next });
+  }
+
+  function flushRating() {
+    clearTimeout(ratingTimer.current);
+    if (pendingRating.current === undefined) return;
+    const { value } = pendingRating.current;
+    pendingRating.current = undefined;
+    persist({ rating: value != null ? ratingToStored(value) : null });
+  }
+  function changeRating(next) {
+    if (readOnly) return;
+    setRatingDisplay(next);
+    pendingRating.current = { value: next };
+    clearTimeout(ratingTimer.current);
+    ratingTimer.current = setTimeout(flushRating, 700);
+  }
+
+  function saveNotes() {
+    const current = itemRef.current;
+    if (readOnly || !current) return;
+    const text = notesRef.current || null;
+    if (text === (current.personal_notes || null)) return;
+    persist({ personal_notes: text });
+  }
+
+  // Leaving the screen with a change still waiting: save it now rather than lose it.
+  useEffect(() => () => { flushRating(); saveNotes(); }, []);
+
+  async function toggleHidden() {
+    if (readOnly || !item) return;
+    const hide = !(item.is_hidden === 1 || item.is_hidden === true);
+    setSaveError(null);
+    const result = await bulkSetHidden(supabase, [item], [syncId], hide);
+    if (result.failed) { setSaveError("Could not save. Check your connection and try again."); return; }
+    const next = { ...item, is_hidden: hide ? 1 : 0, updated_at: new Date().toISOString() };
+    setItem(next);
+    saveItemCache(next);
+    offerUndo({ message: `${item.title} ${hide ? "hidden" : "shown again"}`, failed: 0, undo: async () => { await result.undo(); const back = { ...next, is_hidden: hide ? 0 : 1 }; setItem(back); saveItemCache(back); onSaved(back); } });
+    onSaved(next);
   }
 
   async function handleDelete() {
@@ -283,35 +337,6 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
       setConfirmDelete(false);
       setDeleting(false);
     }
-  }
-
-  async function handleSave() {
-    if (readOnly) return;
-    setSaving(true);
-    setSaveError(null);
-    const patch = {
-      status,
-      rating: RATABLE.includes(status) && ratingDisplay != null ? ratingToStored(ratingDisplay) : null,
-      date_consumed: dateConsumed,
-      personal_notes: personalNotes || null,
-      updated_at: new Date().toISOString(),
-    };
-    const { error } = await supabase.from("items").update(patch).eq("sync_id", syncId);
-    setSaving(false);
-    if (error) { setSaveError(error.message); return; }
-    saveItemCache({ ...item, ...patch });
-    const before = previousValues(item, patch);
-    offerUndo({
-      message: savedMessage(item), failed: 0,
-      undo: async () => {
-        const restore = { ...before, updated_at: new Date().toISOString() };
-        const { error: e } = await supabase.from("items").update(restore).eq("sync_id", syncId);
-        if (e) throw e;
-        saveItemCache({ ...item, ...restore });
-      },
-    });
-    onSaved({ ...item, ...patch });
-    onClose();
   }
 
   if (loadError) {
@@ -332,6 +357,24 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
     ? customType.fields.map((f) => ({ f, text: customValueText(f, customValues[f.key]) })).filter((r) => r.text !== "")
     : [];
   const genres = (item.genre || "").split(",").map((g) => g.trim()).filter(Boolean);
+  const isHidden = item.is_hidden === 1 || item.is_hidden === true;
+  // Under the genres, in the top block: whether you own it, and the button to say so.
+  const ownedControl = ownedOn ? (
+    <View style={styles.ownedBox}>
+      {!readOnly ? (
+        <Pressable
+          onPress={toggleOwned} disabled={markingOwned} accessibilityRole="button"
+          accessibilityLabel={ownedOn.mine ? "Remove my owned mark" : "Mark as owned"}
+          style={[styles.ownedBtn, ownedOn.mine && styles.ownedBtnOn]}
+        >
+          <Text style={[styles.ownedBtnText, ownedOn.mine && { color: C.accent }]}>{markingOwned ? "Saving…" : ownedOn.mine ? "✓ Owned" : "Mark as owned"}</Text>
+        </Pressable>
+      ) : null}
+      {ownedOn.mine || ownedOn.others.length > 0 || readOnly
+        ? <Text style={styles.ownedHint}>{ownedText(ownedOn)}</Text>
+        : null}
+    </View>
+  ) : null;
   const stats = externalRatingStats(item);
   const links = externalLinks(item);
   const cast = parseCastList(item.cast_list);
@@ -343,7 +386,7 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
   const fmtHours = (h) => `${h % 1 === 0 ? h : h.toFixed(1)}h`;
 
   const fields = (TYPE_FIELDS[item.media_type] || []).filter((f) => {
-    if (f.key === "cast_list" || f.key === "content_rating") return false; // shown elsewhere
+    if (f.key === "cast_list" || f.key === "content_rating" || f.key === "genre") return false; // shown elsewhere (genre: under the title)
     const v = item[f.key];
     return v !== null && v !== undefined && v !== "";
   });
@@ -358,21 +401,26 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
     <View style={styles.fill}>
       <View style={styles.header}>
         <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Back"><Text style={styles.back}>‹ Back</Text></Pressable>
-        {!readOnly && <Pressable onPress={onEdit} accessibilityRole="button" accessibilityLabel="Edit this item"><Text style={styles.editLink}>Edit</Text></Pressable>}
-        <Pressable onPress={handleSave} disabled={saving || readOnly} accessibilityRole="button" accessibilityLabel="Save changes">
-          <Text style={[styles.save, (saving || readOnly) && styles.saveDisabled]}>
-            {readOnly ? (fromCache ? "Offline · read-only" : "Read-only") : saving ? "Saving…" : "Save"}
-          </Text>
-        </Pressable>
+        {readOnly ? (
+          <Text style={styles.readOnlyNote}>{fromCache ? "Offline · read-only" : "Read-only"}</Text>
+        ) : (
+          <View style={styles.actions}>
+            {item.media_type !== "Custom" && (
+              <Pressable onPress={refreshDetails} disabled={refreshing} hitSlop={8} accessibilityRole="button" accessibilityLabel="Refresh details and cover">
+                <Text style={[styles.actionIcon, refreshing && styles.actionOff]}>{refreshing ? "…" : "↻"}</Text>
+              </Pressable>
+            )}
+            <Pressable onPress={toggleHidden} hitSlop={8} accessibilityRole="button" accessibilityLabel={isHidden ? "Show this item again" : "Hide this item"}>
+              <Text style={styles.actionText}>{isHidden ? "Unhide" : "Hide"}</Text>
+            </Pressable>
+            <Pressable onPress={onEdit} hitSlop={8} accessibilityRole="button" accessibilityLabel="Edit this item"><Text style={[styles.actionText, styles.actionEdit]}>Edit</Text></Pressable>
+            <Pressable onPress={() => setConfirmDelete(true)} hitSlop={8} accessibilityRole="button" accessibilityLabel="Delete this item"><Text style={[styles.actionText, styles.actionDelete]}>Delete</Text></Pressable>
+          </View>
+        )}
       </View>
 
       <ScrollView contentContainerStyle={styles.body}>
-        <Hero item={item} keys={keys} type={type} />
-        {!readOnly && (
-          <Pressable onPress={changeCover} disabled={changingCover} style={styles.coverLink} accessibilityRole="button" accessibilityLabel="Change cover picture">
-            <Text style={styles.editLink}>{changingCover ? "Uploading cover…" : "Change cover"}</Text>
-          </Pressable>
-        )}
+        <Hero item={item} keys={keys} type={type} genres={genres} ownedControl={ownedControl} />
 
         {saveError && <Text style={styles.error}>{saveError}</Text>}
 
@@ -398,18 +446,18 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
         {RATABLE.includes(status) ? (
           <View style={styles.ratingRow}>
             <Pressable
-              onPress={() => !readOnly && setRatingDisplay((r) => Math.max(-10, (r ?? 0) - 1))}
+              onPress={() => changeRating(Math.max(-10, (ratingDisplay ?? 0) - 1))}
               style={styles.stepperBtn} accessibilityRole="button" accessibilityLabel="Lower your rating"
             ><Text style={styles.stepperBtnText}>–</Text></Pressable>
             <Text accessibilityLabel={`Your rating ${ratingDisplay != null ? formatRating(ratingToStored(ratingDisplay)) : "none"}`} style={[styles.ratingValue, { color: ratingDisplay != null ? ratingColor(ratingToStored(ratingDisplay)) : C.muted }]}>
               {ratingDisplay != null ? formatRating(ratingToStored(ratingDisplay)) : "—"}
             </Text>
             <Pressable
-              onPress={() => !readOnly && setRatingDisplay((r) => Math.min(10, (r ?? 0) + 1))}
+              onPress={() => changeRating(Math.min(10, (ratingDisplay ?? 0) + 1))}
               style={styles.stepperBtn} accessibilityRole="button" accessibilityLabel="Raise your rating"
             ><Text style={styles.stepperBtnText}>+</Text></Pressable>
             {ratingDisplay != null && !readOnly && (
-              <Pressable onPress={() => setRatingDisplay(null)}><Text style={styles.clearText}>Clear</Text></Pressable>
+              <Pressable onPress={() => changeRating(null)}><Text style={styles.clearText}>Clear</Text></Pressable>
             )}
           </View>
         ) : (
@@ -425,12 +473,6 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
                 {s.sub ? <Text style={styles.statSub}>{s.sub}</Text> : null}
               </View>
             ))}
-          </View>
-        )}
-
-        {genres.length > 0 && (
-          <View style={styles.chipRow}>
-            {genres.map((g) => <Text key={g} style={styles.chip}>{g}</Text>)}
           </View>
         )}
 
@@ -523,37 +565,18 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
           <WhereToWatchCard item={item} keys={keys} readOnly={readOnly} onChecked={(next) => setItem(next)} />
         )}
 
-        {ownedOn && (
-          <Card title="Owned">
-            <Text style={styles.hint}>{ownedText(ownedOn)}</Text>
-            {!readOnly && (
-              <AppButton
-                title={markingOwned ? "Saving…" : ownedOn.mine ? "Remove my owned mark" : "Mark as owned"}
-                variant="action" disabled={markingOwned} onPress={toggleOwned} style={{ marginTop: 8, alignSelf: "flex-start" }}
-              />
-            )}
-            {ownedOn.mine && ownedOn.others.length > 0 && <Text style={styles.hint}>Still marked on {ownedOn.others.join(", ")} after you remove this phone's mark; change that there.</Text>}
-          </Card>
-        )}
-
         <Card title="Your notes">
           <TextInput
             style={styles.notesInput}
             value={personalNotes}
             onChangeText={setPersonalNotes}
+            onBlur={saveNotes}
             editable={!readOnly}
             placeholder="Add a personal note…"
             placeholderTextColor="#777"
             multiline
           />
         </Card>
-
-        {!readOnly && item.media_type !== "Custom" && (
-          <AppButton
-            title={refreshing ? "Refreshing…" : "Refresh details and cover"} variant="action" disabled={refreshing}
-            onPress={refreshDetails} style={{ alignSelf: "flex-start", marginTop: 8 }}
-          />
-        )}
 
         <Card title="Library info">
           <KeyValue label="Added" value={item.date_added || "—"} />
@@ -562,18 +585,15 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
           {sourceLabel(item) ? <KeyValue label="Source" value={sourceLabel(item)} /> : null}
         </Card>
 
-        {!readOnly && (
-          <View style={styles.dangerZone}>
-            <AppButton title="Delete from library" variant="ghost" color={C.danger} onPress={() => setConfirmDelete(true)} />
-          </View>
-        )}
-
         {/* Live catalog lookups — only when connected to the real item (an
             offline-cached profile has no network to look anything up). */}
         {!fromCache && keys !== undefined && (
           <RelatedRows item={item} keys={keys} offline={readOnly} onOpenItem={onOpenItem} onAdded={onAdded} />
         )}
       </ScrollView>
+
+      {/* Changes are saved as you make them here, so the Undo bar shows on this screen too. */}
+      {undo && <UndoBar message={undo.message} failed={undo.failed} busy={undoBusy} onUndo={runUndo} onDismiss={dismissUndo} />}
 
       <BottomSheet visible={confirmDelete} title="Delete this item?" onClose={() => !deleting && setConfirmDelete(false)}>
         <Text style={styles.confirmText}>
@@ -597,9 +617,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.border,
   },
   back: { color: C.muted, fontSize: 15 },
-  editLink: { color: C.text, fontSize: 15 },
-  save: { color: C.accent, fontSize: 15, fontWeight: "700" },
-  saveDisabled: { color: "#e3aa2655" },
+  readOnlyNote: { color: C.muted, fontSize: 13 },
+  actions: { flexDirection: "row", alignItems: "center", gap: 18 },
+  actionIcon: { color: C.muted, fontSize: 19 },
+  actionOff: { opacity: 0.5 },
+  actionText: { color: C.muted, fontSize: 15 },
+  actionEdit: { color: C.accent, fontWeight: "700" },
+  actionDelete: { color: C.danger, fontWeight: "700" },
+  heroChips: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 10 },
+  ownedBox: { marginTop: 12, alignItems: "flex-start", gap: 6 },
+  ownedBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, borderWidth: 1, borderColor: C.border, backgroundColor: C.surface2 },
+  ownedBtnOn: { borderColor: C.accent, backgroundColor: "#e3aa2622" },
+  ownedBtnText: { color: C.text, fontSize: 13, fontWeight: "600" },
+  ownedHint: { color: C.muted, fontSize: 12 },
   body: { padding: 16, paddingBottom: 40 },
   error: { color: C.danger, marginTop: 12 },
   hint: { color: C.muted, fontSize: 13 },

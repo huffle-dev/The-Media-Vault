@@ -18,7 +18,7 @@ import { C, F, statusColor } from "./colors";
 
 // `initial` is the item's current row when editing (null when adding).
 // onSubmit(values) may throw; the message is shown under the form.
-export default function ItemForm({ mediaType, customType = null, initial, isNew, submitLabel, onSubmit, onCancel, title }) {
+export default function ItemForm({ mediaType, customType = null, initial, isNew, submitLabel, onSubmit, onCancel, title, coverSection = null }) {
   // A type made on desktop brings its own fields (stored together in custom_fields).
   const type = customType || getTypeConfig(mediaType);
   const fields = customType ? [] : fieldsFor(mediaType);
@@ -68,6 +68,8 @@ export default function ItemForm({ mediaType, customType = null, initial, isNew,
 
         <Text style={styles.label}>Title</Text>
         <TextInput style={styles.input} value={itemTitle} onChangeText={setItemTitle} placeholder="Title" placeholderTextColor="#777" />
+
+        {coverSection}
 
         {isNew && (
           <>

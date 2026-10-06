@@ -14,7 +14,7 @@ const COVER_BASE = (() => {
     const script = [...document.scripts].find((x) => /_expo\/static\/js\/web\//.test(x.src));
     if (script) return script.src.replace(/_expo\/static\/js\/web\/.*$/, "");
   } catch { /* fall through */ }
-  return new URL("./", window.location.href).href;
+  return typeof window !== "undefined" ? new URL("./", window.location.href).href : ""; // (no page when the tests run)
 })();
 
 const now = () => new Date().toISOString();
