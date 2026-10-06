@@ -370,9 +370,13 @@ export default function ItemProfileScreen({ syncId, onClose, onSaved, onOpenItem
           <Text style={[styles.ownedBtnText, ownedOn.mine && { color: C.accent }]}>{markingOwned ? "Saving…" : ownedOn.mine ? "✓ Owned" : "Mark as owned"}</Text>
         </Pressable>
       ) : null}
-      {ownedOn.mine || ownedOn.others.length > 0 || readOnly
+      {/* No line for "owned on this phone" (the button says it). Only when another device holds the mark, or the
+          profile is read-only and there is no button, is there a line to say where it is owned. */}
+      {readOnly
         ? <Text style={styles.ownedHint}>{ownedText(ownedOn)}</Text>
-        : null}
+        : ownedOn.others.length > 0
+          ? <Text style={styles.ownedHint}>{ownedOn.mine ? "Also owned on" : "Owned on"} {[...new Set(ownedOn.others)].join(", ")}</Text>
+          : null}
     </View>
   ) : null;
   const stats = externalRatingStats(item);
@@ -626,9 +630,10 @@ const styles = StyleSheet.create({
   actionDelete: { color: C.danger, fontWeight: "700" },
   heroChips: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 10 },
   ownedBox: { marginTop: 12, alignItems: "flex-start", gap: 6 },
-  ownedBtn: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6, borderWidth: 1, borderColor: C.border, backgroundColor: C.surface2 },
+  // A fixed height, so the button is the same size whether or not it is marked.
+  ownedBtn: { height: 34, paddingHorizontal: 14, justifyContent: "center", alignItems: "center", borderRadius: 6, borderWidth: 1, borderColor: C.border, backgroundColor: C.surface2 },
   ownedBtnOn: { borderColor: C.accent, backgroundColor: "#e3aa2622" },
-  ownedBtnText: { color: C.text, fontSize: 13, fontWeight: "600" },
+  ownedBtnText: { color: C.text, fontSize: 13, lineHeight: 18, fontWeight: "600" },
   ownedHint: { color: C.muted, fontSize: 12 },
   body: { padding: 16, paddingBottom: 40 },
   error: { color: C.danger, marginTop: 12 },
