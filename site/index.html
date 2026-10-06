@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Media Vault</title>
+<link rel="icon" href="icon.png" type="image/png">
 <meta name="description" content="A free, open-source library for everything you watch, read, play and listen to. A Windows app and an Android companion, with your data kept on your own server.">
 <style>
   /* Fonts are bundled with the site (copied in by scripts/build-site.js), so visiting it loads nothing from anyone else. */
@@ -38,7 +39,8 @@
 
   header.top { padding: 18px 0; border-bottom: 1px solid var(--line); }
   header.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-  .brand { font-family: "DM Serif Display", Georgia, serif; font-size: 22px; color: var(--gold); text-decoration: none; }
+  .brand { font-family: "DM Serif Display", Georgia, serif; font-size: 22px; color: var(--gold); text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+  .brand-icon { display: block; border-radius: 8px; }
   nav a { color: var(--muted); text-decoration: none; margin-left: 20px; font-size: 14px; }
   nav a:hover { color: var(--text); }
 
@@ -106,7 +108,7 @@
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="./">The Media Vault</a>
+    <a class="brand" href="./">The Media Vault <img class="brand-icon" src="icon.png" width="32" height="32" alt=""></a>
     <nav aria-label="Main">
       <a href="#try">Try it</a>
       <a href="#features">What it does</a>
