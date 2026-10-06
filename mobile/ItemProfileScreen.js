@@ -636,7 +636,8 @@ const styles = StyleSheet.create({
 
   heroRow: { flexDirection: "row", gap: 14 },
   heroArt: {
-    width: 120, aspectRatio: 2 / 3, borderRadius: 6, backgroundColor: C.surface,
+    // alignSelf/flexShrink: the picture keeps its own size when the text beside it grows taller (e.g. the owned line appears)
+    width: 120, aspectRatio: 2 / 3, alignSelf: "flex-start", flexShrink: 0, borderRadius: 6, backgroundColor: C.surface,
     overflow: "hidden", alignItems: "center", justifyContent: "center",
   },
   heroArtSquare: { aspectRatio: 1, alignSelf: "flex-start" },
