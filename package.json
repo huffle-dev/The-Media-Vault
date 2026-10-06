@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@media-vault/core": "*",
-    "@supabase/supabase-js": "^2.116.0",
+    "@supabase/supabase-js": "^2.117.2",
     "@tanstack/react-virtual": "^3.14.13",
     "archiver": "^8.0.0",
     "better-sqlite3": "^13.0.2",
