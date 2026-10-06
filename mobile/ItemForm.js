@@ -8,7 +8,6 @@ import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import Text from "./Text";
 import TextInput from "./TextInput";
-import AppButton from "./AppButton";
 import { fieldsFor, isBoolField, keyboardFor, parseFieldValue, toInputText } from "./itemFields";
 import { buildCustomFieldsJson, customInputText, parseCustomFields } from "./customTypes";
 import { getTypeConfig } from "@media-vault/core/tokens/mediaTypes.js";
@@ -57,11 +56,15 @@ export default function ItemForm({ mediaType, customType = null, initial, isNew,
 
   return (
     <KeyboardAvoidingView style={styles.fill} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      {/* Cancel on the left, Save on the right. The title is only shown when adding (when editing, the item is already on screen). */}
       <View style={styles.header}>
-        <Pressable onPress={onCancel}><Text style={styles.cancel}>‹ Cancel</Text></Pressable>
-        <Text style={styles.h2} numberOfLines={1}>{title}</Text>
-        <View style={{ width: 60 }} />
+        <Pressable onPress={onCancel} hitSlop={8} accessibilityRole="button" accessibilityLabel="Cancel"><Text style={styles.cancel}>‹ Cancel</Text></Pressable>
+        {isNew ? <Text style={styles.h2} numberOfLines={1}>{title}</Text> : <View style={{ flex: 1 }} />}
+        <Pressable onPress={handleSubmit} disabled={saving} hitSlop={8} accessibilityRole="button" accessibilityLabel="Save">
+          <Text style={[styles.save, saving && styles.saveOff]}>{saving ? "Saving…" : "Save"}</Text>
+        </Pressable>
       </View>
+      {error ? <Text style={styles.errorBar}>{error}</Text> : null}
 
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         <Text style={[styles.typeBadge, { color: type.color }]}>{type.icon} {type.label}</Text>
@@ -140,8 +143,6 @@ export default function ItemForm({ mediaType, customType = null, initial, isNew,
           placeholder="Synopsis or description" placeholderTextColor="#777"
         />
 
-        {error && <Text style={styles.error}>{error}</Text>}
-        <AppButton variant="primary" title={saving ? "Saving…" : submitLabel} disabled={saving} onPress={handleSubmit} style={{ marginTop: 20 }} />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -155,6 +156,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.border,
   },
   cancel: { color: C.muted, fontSize: 15 },
+  save: { color: C.accent, fontSize: 15, fontWeight: "700" },
+  saveOff: { color: "#e3aa2655" },
+  errorBar: { color: C.danger, fontSize: 13, paddingHorizontal: 16, paddingVertical: 8, backgroundColor: C.surface2 },
   h2: { color: C.text, fontSize: 15, fontWeight: "700", flex: 1, textAlign: "center", marginHorizontal: 8 },
   body: { padding: 16, paddingBottom: 40 },
   typeBadge: { fontSize: 12, fontWeight: "600" },
