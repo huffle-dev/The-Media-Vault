@@ -9,8 +9,6 @@ Free and open source ([MIT](LICENSE)). No account with the makers, no ads, no tr
 
 **[Try it in your browser](https://huffle-dev.github.io/The-Media-Vault/)**: the real Windows and phone apps running on a sample library of public-domain and open-source works (nothing is saved).
 
-<!-- Screenshots: add docs/screenshots/*.png and link them here. -->
-
 ## Download
 
 Go to the [latest release](https://github.com/huffle-dev/The-Media-Vault/releases/latest) and take:
