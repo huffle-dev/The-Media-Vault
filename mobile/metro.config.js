@@ -22,12 +22,12 @@ if (process.env.MEDIA_VAULT_PHONE_DEMO) {
     'expo-sqlite/localStorage/install': demo('shims', 'empty.js'),
     'react-native-url-polyfill/auto': demo('shims', 'empty.js'),
   };
-  const byLocalFile = { supabase: demo('supabase.js'), coverArtStorage: demo('coverArtStorage.js') };
+  const byLocalFile = { supabase: demo('supabase.js'), coverArtStorage: demo('coverArtStorage.js'), coverHealing: demo('coverHealing.js') };
   const original = config.resolver.resolveRequest;
   config.resolver.resolveRequest = (context, moduleName, platform) => {
     if (platform === 'web') {
       if (byPackage[moduleName]) return { type: 'sourceFile', filePath: byPackage[moduleName] };
-      const local = /(?:^|\/)(supabase|coverArtStorage)$/.exec(moduleName);
+      const local = /(?:^|\/)(supabase|coverArtStorage|coverHealing)$/.exec(moduleName);
       const from = context.originModulePath || '';
       if (local && moduleName.startsWith('.') && from.startsWith(__dirname) && !from.includes('node_modules') && !from.startsWith(demo())) {
         return { type: 'sourceFile', filePath: byLocalFile[local[1]] };
