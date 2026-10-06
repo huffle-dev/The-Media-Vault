@@ -11,12 +11,12 @@ Free and open source ([MIT](LICENSE)). No account with the makers, no ads, no tr
 
 ## Download
 
-Go to the [latest release](https://github.com/huffle-dev/The-Media-Vault/releases/latest) and take:
+Windows and Android have their own release pages:
 
-- **Windows:** `TheMediaVault-Setup-<version>.exe`. Run it; your library is kept when you update or uninstall.
+- **Windows:** [`TheMediaVault-Setup-<version>.exe`](https://github.com/huffle-dev/The-Media-Vault/releases/tag/Windows.v.1.0.0). Run it; your library is kept when you update or uninstall.
   Windows may show *"Windows protected your PC"* because the installer is not signed with a paid
   certificate. Choose **More info → Run anyway**. (You can read the source and build it yourself if you prefer.)
-- **Android:** `TheMediaVault-<version>.apk`. Allow installing from your browser or file manager when asked.
+- **Android:** [`TheMediaVault-<version>.apk`](https://github.com/huffle-dev/The-Media-Vault/releases/tag/android.v.1.0.0). Allow installing from your browser or file manager when asked.
 
 Your library is stored in `%APPDATA%\the-vault` (`vault.db`, plus `cover_art\`). **Settings → Export** makes a full backup.
 
