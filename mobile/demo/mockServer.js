@@ -6,6 +6,17 @@ import { buildSampleItems } from "../../demo/sampleData.js";
 const USER = { id: "demo-user", email: "demo@example.com" };
 const SESSION = { access_token: "demo", refresh_token: "demo", user: USER };
 
+// Cover pictures sit next to the page, so their addresses must not depend on which screen is open: a relative
+// "covers/x.jpg" is looked up from the CURRENT address, which is wrong on /item/... screens. The folder the app
+// itself was loaded from is read off its own script's address (".../app/_expo/static/js/web/entry-xxx.js").
+const COVER_BASE = (() => {
+  try {
+    const script = [...document.scripts].find((x) => /_expo\/static\/js\/web\//.test(x.src));
+    if (script) return script.src.replace(/_expo\/static\/js\/web\/.*$/, "");
+  } catch { /* fall through */ }
+  return new URL("./", window.location.href).href;
+})();
+
 const now = () => new Date().toISOString();
 const uuid = () => `demo-${Math.random().toString(36).slice(2)}-${Date.now().toString(36)}`;
 
@@ -16,7 +27,7 @@ function buildDb() {
     return {
       ...rest,
       sync_id: `demo-item-${id}`,
-      cover_art_url: cover_art_path,
+      cover_art_url: `${COVER_BASE}${cover_art_path}`,
       is_hidden: 0, owned_platform: null, tags: null, series_name: null, series_order: null, content_rating: rest.content_rating || null,
       custom_type_sync_id: null, metadata_checked_date: null, watch_checked_date: null,
       created_at: iso(rest.date_added), updated_at: new Date(Date.now() - i * 60000).toISOString(), deleted_at: null,
