@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>The Media Vault — Quick Search</title>
+<style>
+  body {
+    width: 260px;
+    margin: 0;
+    padding: 14px;
+    background: #09090e;
+    color: #e6e6ec;
+    font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  h1 {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    color: #e6e6ec;
+  }
+  label {
+    display: block;
+    font-size: 11px;
+    color: #9a9aa8;
+    margin-bottom: 4px;
+  }
+  select, input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    margin-bottom: 10px;
+    background: #17171f;
+    color: #e6e6ec;
+    border: 1px solid #2a2a35;
+    border-radius: 5px;
+    font-size: 13px;
+  }
+  button {
+    width: 100%;
+    padding: 8px;
+    background: #5b6ef5;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:hover { background: #4a5be0; }
+  [hidden] { display: none; }
+  #hint {
+    font-size: 11px;
+    color: #9a9aa8;
+    margin: -4px 0 10px;
+  }
+</style>
+</head>
+<body>
+  <h1>Open in The Media Vault</h1>
+  <label for="mediaType">Type</label>
+  <select id="mediaType">
+    <option>Game</option>
+    <option>Board Game</option>
+    <option>Movie</option>
+    <option>TV</option>
+    <option>Web Video</option>
+    <option>Podcast</option>
+    <option>Book</option>
+    <option>Audiobook</option>
+    <option>Music</option>
+  </select>
+  <label for="query">Search</label>
+  <input id="query" type="text" placeholder="Title…" autofocus>
+  <div id="yearRow" hidden>
+    <label for="year">Year (optional)</label>
+    <input id="year" type="text" inputmode="numeric" maxlength="4" placeholder="e.g. 2021">
+  </div>
+  <div id="hint" hidden></div>
+  <button id="openBtn">Open in Media Vault</button>
+  <script src="detect.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

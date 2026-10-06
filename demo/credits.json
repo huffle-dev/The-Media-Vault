@@ -1,0 +1,722 @@
+{
+  "metropolis": {
+    "image": "covers/metropolis.jpg",
+    "file": "Boris Bilinski - Filmplakat für Metropolis restored.jpg",
+    "author": "Boris Bilinsky",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ABoris_Bilinski_-_Filmplakat_f%C3%BCr_Metropolis_restored.jpg",
+    "description": "Poster for the 1927 film Metropolis.",
+    "date": "1927"
+  },
+  "night-of-the-living-dead": {
+    "image": "covers/night-of-the-living-dead.jpg",
+    "file": "Night Of The Living Dead (1968) - Poster.jpg",
+    "author": "Unknown authorUnknown author",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ANight_Of_The_Living_Dead_(1968)_-_Poster.jpg",
+    "description": "A poster for the 1968 George A. Romero film \"Night Of The Living Dead\"",
+    "date": "1968"
+  },
+  "big-buck-bunny": {
+    "image": "covers/big-buck-bunny.jpg",
+    "file": "Big buck bunny poster big.jpg",
+    "author": "(c) copyright Blender Foundation | peach.blender.org",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ABig_buck_bunny_poster_big.jpg",
+    "description": "Big Buck Bunny poster",
+    "date": "2008-03"
+  },
+  "sintel": {
+    "image": "covers/sintel.jpg",
+    "file": "Sintel poster.jpg",
+    "author": "(c) copyright Blender Foundation | durian.blender.org",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ASintel_poster.jpg",
+    "description": "Sintel poster",
+    "date": "2010-09-22"
+  },
+  "tears-of-steel": {
+    "image": "covers/tears-of-steel.png",
+    "file": "Tos-poster.png",
+    "author": "(CC) Blender Foundation | Project Mango",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ATos-poster.png",
+    "description": "Tears of Steel movie poster",
+    "date": "2012-09-24"
+  },
+  "charade": {
+    "image": "covers/charade.jpg",
+    "file": "Charade (1963 poster).jpg",
+    "author": "\"Copyright © 1963 by Universal Pictures Co., Inc.\"",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ACharade_(1963_poster).jpg",
+    "description": "Theatrical release poster for the 1963 film Charade.",
+    "date": "1963"
+  },
+  "the-general": {
+    "image": "covers/the-general.png",
+    "file": "The General (1926) - Movie Poster 2.png",
+    "author": "United Artists Corporation",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_General_(1926)_-_Movie_Poster_2.png",
+    "description": "Film poster for Buster Keaton and Clyde Bruckman's film The General (1926).",
+    "date": "1926-12-31"
+  },
+  "caligari": {
+    "image": "covers/caligari.jpg",
+    "file": "The Cabinet of Doctor Caligari Movie poster.jpg",
+    "author": "Lionel S. Reiss",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_Cabinet_of_Doctor_Caligari_Movie_poster.jpg",
+    "description": "American movie poster for German silent film",
+    "date": "1920"
+  },
+  "frankenstein": {
+    "image": "covers/frankenstein.jpg",
+    "file": "Frankenstein 1818 edition title page.jpg",
+    "author": "Author Mary Shelley; publisher Lackington, Hughes, Harding, Mavor & Jones",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AFrankenstein_1818_edition_title_page.jpg",
+    "description": "Title page of first edition of Frankenstein, Volume I.",
+    "date": "1818"
+  },
+  "dracula": {
+    "image": "covers/dracula.jpg",
+    "file": "Dracula 1st ed cover reproduction.jpg",
+    "author": "Unknown authorUnknown author",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ADracula_1st_ed_cover_reproduction.jpg",
+    "description": "A faithful reproduction of the original book cover, with colours slightly enhanced due to the book's age.",
+    "date": "2021"
+  },
+  "alice": {
+    "image": "covers/alice.jpg",
+    "file": "Alice's Adventures in Wonderland cover (1865).jpg",
+    "author": "Lewis Carroll",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AAlice's_Adventures_in_Wonderland_cover_(1865).jpg",
+    "description": "The cover of the 1865 edition of Alice's Adventures in Wonderland.",
+    "date": "1865-11-26"
+  },
+  "time-machine": {
+    "image": "covers/time-machine.jpg",
+    "file": "The Time Machine (Heinemann text) - front cover.jpg",
+    "author": "Author Herbert George Wells Publisher William Heinemann",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_Time_Machine_(Heinemann_text)_-_front_cover.jpg",
+    "description": "The Time Machine (Heinemann text) - front cover",
+    "date": "1895"
+  },
+  "war-of-the-worlds": {
+    "image": "covers/war-of-the-worlds.jpg",
+    "file": "The War of the Worlds by H. G. Wells (US book cover, 1898).jpg",
+    "author": "author of text: H. G. Wells author of book cover: UnknownUnknown",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_War_of_the_Worlds_by_H._G._Wells_(US_book_cover%2C_1898).jpg",
+    "description": "The cover of the novel \"The War Of The Worlds\" by H. G. Wells. First US book edition: Harper & Brothers, New York, 1898",
+    "date": "1898"
+  },
+  "study-in-scarlet": {
+    "image": "covers/study-in-scarlet.jpg",
+    "file": "A Study in Scarlet from Beeton's Christmas Annual 1887.jpg",
+    "author": "David Henry Friston",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AA_Study_in_Scarlet_from_Beeton's_Christmas_Annual_1887.jpg",
+    "description": "Cover illustration of 'Beeton's Christmas Annual,' magazine, for 1887. 21 cm. Featuring Arthur Conan Doyle's \"A Study in Scarlet.\" General Collection, Beinecke Rare Book and Manuscript Library, Yale University, New Haven, Connecticut.",
+    "date": "1887-12"
+  },
+  "pride-and-prejudice": {
+    "image": "covers/pride-and-prejudice.jpg",
+    "file": "AUSTEN(1894) Pride and prejudice (15811958311).jpg",
+    "author": "National Library NZ on The Commons",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AAUSTEN(1894)_Pride_and_prejudice_(15811958311).jpg",
+    "description": "File name: ILS-1602646Binder label: G 823.7 AUS 1894Title: Pride and prejudiceDate issued: 1894Genre: Book coversNotes: (Author) Jane AustenCollection: Victorian publishers' bookbindingsLocation: National Library NZ on The Commons collectionsRights: No known copyright restrictions.",
+    "date": "2014-10-23"
+  },
+  "mine-and-thine": {
+    "image": "covers/mine-and-thine.jpg",
+    "file": "Mine and Thine librivox cover.jpg",
+    "author": "LibriVox",
+    "licence": "CC0",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File%3AMine_and_Thine_librivox_cover.jpg",
+    "description": "Cover art for 'Mine and Thine', a collection of poetry written by Florence Earle Coates",
+    "date": "2017"
+  },
+  "pierre-and-luce": {
+    "image": "covers/pierre-and-luce.jpg",
+    "file": "Pierre and Luce LibriVox cover.jpg",
+    "author": "Théophile Steinlen",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3APierre_and_Luce_LibriVox_cover.jpg",
+    "description": "Cover of the LibriVox edition of Pierre and Luce",
+    "date": "before 1923date QS:P,+1923-00-00T00:00:00Z/7,P1326,+1923-00-00T00:00:00Z/9 (original work)"
+  },
+  "wesnoth": {
+    "image": "covers/wesnoth.jpg",
+    "file": "The Battle for Wesnoth Map Screenshot 000.jpg",
+    "author": "Mirgov",
+    "licence": "GPL",
+    "licenceUrl": "http://www.gnu.org/licenses/gpl.html",
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_Battle_for_Wesnoth_Map_Screenshot_000.jpg",
+    "description": "The Battle for Wesnoth map",
+    "date": "2013-06-07"
+  },
+  "0ad": {
+    "image": "covers/0ad.jpg",
+    "file": "0 A.D. game screenshot Discovery.jpg",
+    "author": "Wildfire Games",
+    "licence": "CC BY-SA 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3A0_A.D._game_screenshot_Discovery.jpg",
+    "description": "Screenshot of 0 A.D. game",
+    "date": "2010"
+  },
+  "supertuxkart": {
+    "image": "covers/supertuxkart.jpg",
+    "file": "Supertuxkart-0.9-screenshot-2.jpg",
+    "author": "STK dev team",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ASupertuxkart-0.9-screenshot-2.jpg",
+    "description": "Screenshot of the Open Source racing game SuperTuxKart",
+    "date": "2015-04-30"
+  },
+  "openttd": {
+    "image": "covers/openttd.png",
+    "file": "Map and Town of OpenTTD 14.1.png",
+    "author": "OpenTTD for OpenGFX basic set, Moriarty for the map \"Korea and Japan\", Saimmx for the screenshot",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AMap_and_Town_of_OpenTTD_14.1.png",
+    "description": "Screenshot of OpenTTD 14.1 in Japanese. The screenshot shows a town on a map depicting real-life Japan",
+    "date": "2025-02-23"
+  },
+  "freeciv": {
+    "image": "covers/freeciv.jpg",
+    "file": "Freeciv-webgl-3d-screenshot.jpg",
+    "author": "Nybygger",
+    "licence": "GPL",
+    "licenceUrl": "http://www.gnu.org/licenses/gpl.html",
+    "source": "https://commons.wikimedia.org/wiki/File%3AFreeciv-webgl-3d-screenshot.jpg",
+    "description": "Screenshot of Freeciv WebGL 3D running on play.freeciv.org",
+    "date": "2017-05-14"
+  },
+  "josh-woodward-ashes": {
+    "image": "covers/josh-woodward-ashes.jpg",
+    "file": "Josh Woodward - Ashes - cover.jpg",
+    "author": "Josh Woodward",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AJosh_Woodward_-_Ashes_-_cover.jpg",
+    "description": "Cover of Josh Woodward's 2010 album, Ashes",
+    "date": "2010"
+  },
+  "tunguska-chillout": {
+    "image": "covers/tunguska-chillout.jpg",
+    "file": "Tunguska Electronic Music Society - Tunguska Chillout Grooves vol. 1.jpg",
+    "author": "Tunguska Electronic Music Society",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ATunguska_Electronic_Music_Society_-_Tunguska_Chillout_Grooves_vol._1.jpg",
+    "description": "Album cover of Tunguska Chillout Grooves vol. 1 by Tunguska Electronic Music Society",
+    "date": "2008-06-20"
+  },
+  "zero-celtic-dream": {
+    "image": "covers/zero-celtic-dream.jpg",
+    "file": "Zero-project - Celtic dream (Jamendo edition).jpg",
+    "author": "zero-project",
+    "licence": "CC BY-SA 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AZero-project_-_Celtic_dream_(Jamendo_edition).jpg",
+    "description": "Album cover of Celtic dream (Jamendo edition) by zero-project",
+    "date": "2010-10-31"
+  },
+  "zero-fairytale": {
+    "image": "covers/zero-fairytale.jpg",
+    "file": "Zero-project - Fairytale.jpg",
+    "author": "zero-project",
+    "licence": "CC BY-SA 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AZero-project_-_Fairytale.jpg",
+    "description": "Album cover of Fairytale by zero-project",
+    "date": "01.02.2010"
+  },
+  "zero-infinity": {
+    "image": "covers/zero-infinity.jpg",
+    "file": "Zero-project - Infinity.jpg",
+    "author": "zero-project",
+    "licence": "CC BY-SA 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AZero-project_-_Infinity.jpg",
+    "description": "Album cover of Infinity by zero-project. This image is used here.",
+    "date": "3.7.2010"
+  },
+  "chess": {
+    "image": "covers/chess.jpg",
+    "file": "Game, chess (51361101355).jpg",
+    "author": "Auckland Museum Collections from Auckland, Aotearoa New Zealand",
+    "licence": "CC BY 2.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AGame%2C_chess_(51361101355).jpg",
+    "description": "Title: Game, chess Description: Chess set Made from woof, metal, and ivory. A wooden hinged box that holds out into a chess board. When shut it is a rectangle shape when opened it is a square shape. The interior is inlaid with ivory geometric designs. The chess set has 32 red and white ivory pieces,",
+    "date": "2020-01-21 08:52"
+  },
+  "go": {
+    "image": "covers/go.jpg",
+    "file": "Go -- 2021 -- 6732.jpg",
+    "author": "Dietmar Rabich",
+    "licence": "CC BY-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AGo_--_2021_--_6732.jpg",
+    "description": "Go (game) with game pieces",
+    "date": "Taken on 16 October 2021, 16:58"
+  },
+  "backgammon": {
+    "image": "covers/backgammon.jpg",
+    "file": "Backgammon (30484111843).jpg",
+    "author": "Sheila Sund from Salem, United States",
+    "licence": "CC BY 2.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ABackgammon_(30484111843).jpg",
+    "description": "I found this great old leather backgammon board in a hotel in New Mexico.",
+    "date": "2013-06-05 00:14"
+  },
+  "mahjong": {
+    "image": "covers/mahjong.jpg",
+    "file": "Mah Jongg Flower Tiles.jpg",
+    "author": "Abthurber1956",
+    "licence": "CC BY-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AMah_Jongg_Flower_Tiles.jpg",
+    "description": "Photo of hand carved Maj Jongg flower tiles from bone and bamboo set made for western market circa 1920.",
+    "date": "2018-02-08 16:12:26"
+  },
+  "mancala": {
+    "image": "covers/mancala.jpg",
+    "file": "Brooklyn Museum 22.220 Mancala Game Board (2).jpg",
+    "author": "Unknown authorUnknown author",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ABrooklyn_Museum_22.220_Mancala_Game_Board_(2).jpg",
+    "description": "Table-shaped mancala game board with four rows of eight shallow depressions. Base is a cylindrical pedestal. Top reveals indications of having been painted black. Condition: good.",
+    "date": "late 19th century"
+  },
+  "nine-mens-morris": {
+    "image": "covers/nine-mens-morris.jpg",
+    "file": "Plansee Nine Men's Morris 2026-08-28.jpg",
+    "author": "JensOstertag",
+    "licence": "CC BY-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3APlansee_Nine_Men's_Morris_2026-08-28.jpg",
+    "description": "Nine Men's Morris board in Plansee, captured on August 28, 2026",
+    "date": "2026-08-28"
+  },
+  "gutenberg": {
+    "image": "covers/gutenberg.png",
+    "file": "Project Gutenberg logo.svg",
+    "author": "Dianakc",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AProject_Gutenberg_logo.svg",
+    "description": "Project Gutenberg logo",
+    "date": "2013-12-24 19:29:37"
+  },
+  "wikimedia-commons": {
+    "image": "covers/wikimedia-commons.png",
+    "file": "Commons-logo.svg",
+    "author": "Reidab, Grunt, 3247, Pumbaa",
+    "licence": "CC BY-SA 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ACommons-logo.svg",
+    "description": "The Wikimedia Commons logo, SVG version.",
+    "date": "2005-09-10"
+  },
+  "wikisource": {
+    "image": "covers/wikisource.png",
+    "file": "Wikisource-logo.svg",
+    "author": "Nicholas Moreau",
+    "licence": "CC BY-SA 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AWikisource-logo.svg",
+    "description": "Wikisource logo, no text variant",
+    "date": "2006"
+  },
+  "elephants-dream": {
+    "image": "covers/elephants-dream.jpg",
+    "file": "ElephantsDreamPoster.jpg",
+    "author": "Bassam Kurdali, Andy Goralczyk, and the Blender Foundation",
+    "licence": "CC BY 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AElephantsDreamPoster.jpg",
+    "description": "The official poster for the 2006 Blender animated film, Elephants Dream",
+    "date": "2015-09-11"
+  },
+  "spring": {
+    "image": "covers/spring.jpg",
+    "file": "Spring2019AlphaPosterBlender.jpg",
+    "author": "Blender Foundation",
+    "licence": "CC BY 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ASpring2019AlphaPosterBlender.jpg",
+    "description": "A movie poster showing a girl, her back to the camera, holding a walking stick with a little dog. They are looking at a large creature/monster enveloped in mist or fog.",
+    "date": "2019-04-05"
+  },
+  "cosmos-laundromat": {
+    "image": "covers/cosmos-laundromat.jpg",
+    "file": "CosmosLaundromatPoster.jpg",
+    "author": "Andy Goralczyk and the Blender Foundation",
+    "licence": "CC BY 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ACosmosLaundromatPoster.jpg",
+    "description": "The poster for the Blender short film, Cosmos Laundromat: First Cycle",
+    "date": "2016-09-12"
+  },
+  "sherlock-jr": {
+    "image": "covers/sherlock-jr.jpg",
+    "file": "Sherlock jr poster.jpg",
+    "author": "Unknown authorUnknown author",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ASherlock_jr_poster.jpg",
+    "description": "Poster for the 1924 film Sherlock Jr., featuring Buster Keaton.",
+    "date": "1924"
+  },
+  "safety-last": {
+    "image": "covers/safety-last.jpg",
+    "file": "Safety last poster.jpg",
+    "author": "Unknown authorUnknown author",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ASafety_last_poster.jpg",
+    "description": "Poster for the 1923 film Safety Last!, starring Harold Lloyd.",
+    "date": "1923"
+  },
+  "the-kid": {
+    "image": "covers/the-kid.jpg",
+    "file": "The Kid (1921) poster.jpg",
+    "author": "First National",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_Kid_(1921)_poster.jpg",
+    "description": "Poster for the 1921 film The Kid.",
+    "date": "1921"
+  },
+  "his-girl-friday": {
+    "image": "covers/his-girl-friday.jpg",
+    "file": "His Girl Friday (1940 poster).jpg",
+    "author": "\"Copyrighted by Columbia Pictures Corp, New York, N. Y. 1939\"",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AHis_Girl_Friday_(1940_poster).jpg",
+    "description": "Theatrical poster for the American release of the 1940 film His Girl Friday.",
+    "date": "1939, per the copyright notice. Note that the film itself premiered in January 1940."
+  },
+  "gold-rush": {
+    "image": "covers/gold-rush.jpg",
+    "file": "Gold rush poster.jpg",
+    "author": "Charles Chaplin Productions / United Artists",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AGold_rush_poster.jpg",
+    "description": "Poster for The Gold Rush, a silent comedy film starring Charlie Chaplin",
+    "date": "1925"
+  },
+  "wizard-of-oz": {
+    "image": "covers/wizard-of-oz.jpg",
+    "file": "The Wonderful Wizard of Oz first edition cover.jpg",
+    "author": "W. W. Denslow",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_Wonderful_Wizard_of_Oz_first_edition_cover.jpg",
+    "description": "Cover of the first edition of The Wonderful Wizard of Oz",
+    "date": "1900"
+  },
+  "peter-pan": {
+    "image": "covers/peter-pan.jpg",
+    "file": "Peter Pan Cover 1911 b.JPG",
+    "author": "IndianCaverns",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3APeter_Pan_Cover_1911_b.JPG",
+    "description": "Front cover of J.M. Barrie novel \"Peter and Wendy\", published October 1911",
+    "date": "2008"
+  },
+  "jungle-book": {
+    "image": "covers/jungle-book.jpg",
+    "file": "The Jungle Book (1894) cover.jpg",
+    "author": "Rudyard Kipling",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_Jungle_Book_(1894)_cover.jpg",
+    "description": "The Jungle Book (1894) cover image, The Century Co.",
+    "date": "1894"
+  },
+  "sherlock-adventures": {
+    "image": "covers/sherlock-adventures.jpg",
+    "file": "Adventures of sherlock holmes.jpg",
+    "author": "Rtrace (upload first version)User:ΛΦΠ (upload second version)",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AAdventures_of_sherlock_holmes.jpg",
+    "description": "Cover of The Adventures of Sherlock Holmes, by Arthur Conan Doyle. First edition.",
+    "date": "1892"
+  },
+  "wind-in-the-willows": {
+    "image": "covers/wind-in-the-willows.jpg",
+    "file": "The Wind in the Willows cover.jpg",
+    "author": "W. Graham Robertson/Kenneth Grahame",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_Wind_in_the_Willows_cover.jpg",
+    "description": "The cover art for the first edition release of The Wind in the Willows",
+    "date": "1908-10-08"
+  },
+  "around-the-world": {
+    "image": "covers/around-the-world.png",
+    "file": "Around the World in Eighty Days (1873) front cover.png",
+    "author": "Jules Verne",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AAround_the_World_in_Eighty_Days_(1873)_front_cover.png",
+    "description": "The front cover of Around the World in Eighty Days (1873), first found on page 1 of scan. No caption provided.",
+    "date": "1873"
+  },
+  "great-gatsby": {
+    "image": "covers/great-gatsby.jpg",
+    "file": "The Great Gatsby Cover 1925 Retouched.jpg",
+    "author": "Original cover illustration by Francis Cugat (1893–1981) and published by Charles Scribner's Sons. Digital restoration and enhancement by User:Flask.",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AThe_Great_Gatsby_Cover_1925_Retouched.jpg",
+    "description": "Digitally restored and enhanced image of the first edition cover for F. Scott Fitzgerald's novel The Great Gatsby (1925). The book's cover art by illustrator Francis Cugat was first published in April 1925; hence, the cover art resides in the public domain in the United States because it was publish",
+    "date": "1925-04-10"
+  },
+  "hound-baskervilles": {
+    "image": "covers/hound-baskervilles.jpg",
+    "file": "Cover (Hound of Baskervilles, 1902).jpg",
+    "author": "Alfred Garth Jones",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ACover_(Hound_of_Baskervilles%2C_1902).jpg",
+    "description": "An page scan of cover of The Hound of the Baskervilles by Arthur Conan Doyle.",
+    "date": "1902"
+  },
+  "secret-garden": {
+    "image": "covers/secret-garden.jpg",
+    "file": "Houghton AC85 B9345 911s - Secret Garden, 1911 - cover.jpg",
+    "author": "Maria Louise Kirk",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AHoughton_AC85_B9345_911s_-_Secret_Garden%2C_1911_-_cover.jpg",
+    "description": "Cover: The Secret Garden by Frances Hodgson Burnett (1849-1924). Publisher: New York: F.A. Stokes, 1911. *AC85 B9345 911s, Houghton Library, Harvard University",
+    "date": "1911"
+  },
+  "treasure-island": {
+    "image": "covers/treasure-island.jpg",
+    "file": "Treasure Island-Scribner's-1911.jpg",
+    "author": "N. C. Wyeth",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ATreasure_Island-Scribner's-1911.jpg",
+    "description": "Treasure Island by Robert Louis Stevenson, Charles Scribner's Sons, 1911",
+    "date": "1911"
+  },
+  "widelands": {
+    "image": "covers/widelands.jpg",
+    "file": "Four tribes in Widelands Build 20.jpg",
+    "author": "Widelands Development Team",
+    "licence": "GPL",
+    "licenceUrl": "http://www.gnu.org/licenses/gpl.html",
+    "source": "https://commons.wikimedia.org/wiki/File%3AFour_tribes_in_Widelands_Build_20.jpg",
+    "description": "Screenshot of the Widelands fantasy real-time strategy game",
+    "date": "2019-01-03"
+  },
+  "freecol": {
+    "image": "covers/freecol.jpg",
+    "file": "FreeCol colony screen.jpg",
+    "author": "The Freecol Team",
+    "licence": "CC BY-SA 3.0",
+    "licenceUrl": "http://creativecommons.org/licenses/by-sa/3.0/",
+    "source": "https://commons.wikimedia.org/wiki/File%3AFreeCol_colony_screen.jpg",
+    "description": "A screenshot of FreeCol depicting its colony menu.",
+    "date": ""
+  },
+  "mindustry": {
+    "image": "covers/mindustry.jpg",
+    "file": "Mindustry multiplayer.jpg",
+    "author": "TheVanillChaos",
+    "licence": "GPLv3",
+    "licenceUrl": "http://www.gnu.org/licenses/gpl-3.0.html",
+    "source": "https://commons.wikimedia.org/wiki/File%3AMindustry_multiplayer.jpg",
+    "description": "Мультиплеер сервер Mindustry в режиме \"атака\"",
+    "date": "2024-08-22"
+  },
+  "jw-simple-life": {
+    "image": "covers/jw-simple-life.jpg",
+    "file": "Josh Wooward - The Simple Life.jpg",
+    "author": "Josh Woodward",
+    "licence": "CC BY 3.0 us",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0/us/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File%3AJosh_Wooward_-_The_Simple_Life.jpg",
+    "description": "The cover of en:Josh Woodward's 2008 album en:The Simple Life (Josh Woodward album)",
+    "date": "2008"
+  },
+  "jw-crawford-street": {
+    "image": "covers/jw-crawford-street.jpg",
+    "file": "JoshWoodward CrawfordStreet.jpg",
+    "author": "Josh Woodward",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AJoshWoodward_CrawfordStreet.jpg",
+    "description": "The cover of Josh Woodward's 2005 album Crawford Street",
+    "date": "2005"
+  },
+  "jw-here-today": {
+    "image": "covers/jw-here-today.jpg",
+    "file": "JoshWoodward HereToday.jpg",
+    "author": "Josh Woodward",
+    "licence": "CC BY 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AJoshWoodward_HereToday.jpg",
+    "description": "The cover of Josh Woodward's 2004 album Here Today",
+    "date": "2004"
+  },
+  "jw-sunny-side": {
+    "image": "covers/jw-sunny-side.jpg",
+    "file": "Josh Wooward - Sunny Side of the Street.jpg",
+    "author": "Josh Woodward",
+    "licence": "CC BY 3.0 us",
+    "licenceUrl": "https://creativecommons.org/licenses/by/3.0/us/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File%3AJosh_Wooward_-_Sunny_Side_of_the_Street.jpg",
+    "description": "The cover of Josh Woodward's 2005 album Sunny Side of the Street",
+    "date": "2005"
+  },
+  "zero-fairytale-2": {
+    "image": "covers/zero-fairytale-2.jpg",
+    "file": "Zero-project - Fairytale 2.jpg",
+    "author": "zero-project",
+    "licence": "CC BY-SA 3.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AZero-project_-_Fairytale_2.jpg",
+    "description": "Album cover of Fairytale 2 by zero-project",
+    "date": "2010-11-13"
+  },
+  "senet": {
+    "image": "covers/senet.jpg",
+    "file": "Senet (board game).jpg",
+    "author": "Luistxo",
+    "licence": "CC BY-SA 4.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ASenet_(board_game).jpg",
+    "description": "Senet mahai-joko egipziarra, Louvreko pieza",
+    "date": "2024-12-28 12:51:25"
+  },
+  "royal-game-of-ur": {
+    "image": "covers/royal-game-of-ur.jpg",
+    "file": "British Museum Royal Game of Ur.jpg",
+    "author": "Unknown",
+    "licence": "CC0",
+    "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+    "source": "https://commons.wikimedia.org/wiki/File%3ABritish_Museum_Royal_Game_of_Ur.jpg",
+    "description": "Wooden game-board; the face is of 20 variously inlaid square shell plaques; edges made of small plaques and strips, some sculptured with an eye and some possibly with rosettes; on the back are three lines of shell triangular ornamental inlays.",
+    "date": "24 June 2010"
+  },
+  "cribbage": {
+    "image": "covers/cribbage.jpg",
+    "file": "Cribbage board with pegs1.jpg",
+    "author": "Andrew Malone",
+    "licence": "CC BY 2.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ACribbage_board_with_pegs1.jpg",
+    "description": "Cribbage board with pegs",
+    "date": ""
+  },
+  "hnefatafl": {
+    "image": "covers/hnefatafl.jpg",
+    "file": "Nefatafl fra Trondheim (19896084560).jpg",
+    "author": "NTNU Vitenskapsmuseet",
+    "licence": "CC BY 2.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3ANefatafl_fra_Trondheim_(19896084560).jpg",
+    "description": "Dette Neftafl-brettet er fra 1100-tallet. Det ble funnet blant annet søppel i en bakgård opp mot det gamle Kaupmannastrete, under utgravningene på Folkebibliotek-tomta på 1980-tallet. Brikkene på bildet er laget av bein. De er fra 1200-tallet og funnet andre steder i bygrunnen. Brikkene ser ut til e",
+    "date": "2014-11-10 09:39"
+  },
+  "dominoes": {
+    "image": "covers/dominoes.jpg",
+    "file": "Color dominoes (34519743611).jpg",
+    "author": "Carlos ZGZ from Paris, France",
+    "licence": "CC BY 2.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AColor_dominoes_(34519743611).jpg",
+    "description": "As all the pictures in &lt;a href=\"https://www.flickr.com/photos/carloszgz/sets\"&gt;my gallery&lt;/a&gt;, this is a FREE picture. You can download it and do whatever you want with it: share it, adapt it and/or combine it with other material and distribute the resulting works. I’d very much appreciat",
+    "date": "2019-04-01 00:00"
+  },
+  "checkers": {
+    "image": "covers/checkers.jpg",
+    "file": "Checkersboard.jpg",
+    "author": "Eurleif at English Wikipedia",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ACheckersboard.jpg",
+    "description": "Checkers board, photographed by eurleif.",
+    "date": "20 December 2003 (original upload date)"
+  },
+  "creative-commons": {
+    "image": "covers/creative-commons.png",
+    "file": "Creative Commons heart logo.svg",
+    "author": "Creative Commons",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3ACreative_Commons_heart_logo.svg",
+    "description": "Creative Commons heart logo",
+    "date": "2019-02-07"
+  },
+  "wikibooks": {
+    "image": "covers/wikibooks.png",
+    "file": "Wikibooks-logo-en.svg",
+    "author": "Bastique, Ramac et al.",
+    "licence": "Public domain",
+    "licenceUrl": null,
+    "source": "https://commons.wikimedia.org/wiki/File%3AWikibooks-logo-en.svg",
+    "description": "Wikibooks logo. Uses the DejaVu Sans Bold (\"Wikibooks\") and the Charis SIL Italic (\"Open books for an open world\") fonts.",
+    "date": ""
+  },
+  "librivox": {
+    "image": "covers/librivox.png",
+    "file": "LibriVox logo.png",
+    "author": "Unknown",
+    "licence": "Public Domain",
+    "licenceUrl": "https://web.archive.org/web/20230926203737/https://creativecommons.org/licenses/publicdomain/",
+    "source": "https://commons.wikimedia.org/wiki/File%3ALibriVox_logo.png",
+    "description": "",
+    "date": ""
+  },
+  "openstreetmap": {
+    "image": "covers/openstreetmap.png",
+    "file": "OpenStreetMap-Logo-2006.svg",
+    "author": "OpenStreetMap, TobWen for SVG version [1], Gustavf for PNG version [2]",
+    "licence": "CC BY-SA 2.0",
+    "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+    "source": "https://commons.wikimedia.org/wiki/File%3AOpenStreetMap-Logo-2006.svg",
+    "description": "OpenStreetMap logo used between 2006 and 2011",
+    "date": "2006"
+  }
+}

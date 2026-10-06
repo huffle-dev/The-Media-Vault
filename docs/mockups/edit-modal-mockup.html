@@ -1,0 +1,460 @@
+<title>The Media Vault — Edit Item Mockup</title>
+<style>
+  :root {
+    --bg: #09090e; --surface: #111118; --surface2: #18181f; --border: #1e1e2a;
+    --text: #ddddf0; --muted: #555570; --dim: #888899; --accent: #e8b84b;
+    --seen: #4bb87a; --blue: #5b8ff5; --purple: #b06ef0; --progress: #f59e0b; --dropped: #e84b6e;
+    --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-display: Georgia, "Iowan Old Style", serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  .field-label {
+    font-size: 9px; color: var(--muted); display: block; margin-bottom: 5px;
+    font-family: var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .field-input {
+    width: 100%; padding: 7px 11px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 5px; color: var(--text);
+    font-size: 12px; outline: none; box-sizing: border-box; font-family: var(--font-sans);
+  }
+  .new-badge {
+    font-family: var(--font-mono); font-size: 8px; color: var(--bg);
+    background: var(--accent); padding: 1px 5px; border-radius: 3px;
+    letter-spacing: 0.04em; margin-left: 5px; vertical-align: 1px;
+  }
+  .pill-btn {
+    padding: 5px 14px; border-radius: 100px; cursor: pointer;
+    font-size: 11px; font-family: var(--font-mono); border: 1px solid var(--border);
+    background: transparent; color: var(--muted); transition: all 0.1s;
+  }
+  .section-heading {
+    font-size: 9px; color: var(--muted); font-family: var(--font-mono);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .open-btn {
+    padding: 6px 10px; background: transparent; border: 1px solid var(--border);
+    border-radius: 5px; font-size: 11px; cursor: pointer; font-family: var(--font-mono);
+    flex-shrink: 0;
+  }
+  .cast-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .cast-avatar {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: var(--surface2); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 11px; color: var(--accent);
+  }
+  .rating-btn {
+    flex: 1; padding: 4px 0; border: 1px solid var(--border); border-radius: 3px;
+    background: transparent; color: var(--muted); font-size: 9px; font-weight: 600;
+    cursor: pointer; font-family: var(--font-mono);
+  }
+</style>
+
+<div style="background: var(--bg); min-height: 850px; display: flex; align-items: flex-start; justify-content: center; padding: 30px 0; font-family: var(--font-sans);">
+  <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 10px; width: 620px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 32px 80px rgba(0,0,0,0.7);">
+
+    <!-- Header -->
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 18px 20px 14px; border-bottom: 1px solid var(--border); flex-shrink: 0;">
+      <div style="font-family: var(--font-display); font-size: 17px; color: var(--text);">Edit Item</div>
+      <button style="background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; line-height: 1;">&times;</button>
+    </div>
+
+    <!-- Body -->
+    <div style="overflow-y: auto; padding: 18px 20px; flex: 1; display: flex; gap: 20px;">
+
+      <!-- Cover art panel -->
+      <div style="width: 140px; flex-shrink: 0;">
+        <label class="field-label">Cover Art</label>
+        <div style="width: 100%; aspect-ratio: 2/3; border-radius: 5px; overflow: hidden; background: linear-gradient(160deg, #2a1f06 0%, #1a1208 50%, #0f0c05 100%); display: flex; align-items: center; justify-content: center; border: 1px dashed var(--border); cursor: pointer;">
+          <span style="font-size: 30px; opacity: 0.35;">&#127916;</span>
+        </div>
+        <button style="margin-top: 6px; width: 100%; padding: 4px; background: transparent; border: 1px solid var(--border); border-radius: 4px; color: var(--muted); font-size: 10px; cursor: pointer; font-family: var(--font-mono);">Remove</button>
+        <button style="margin-top: 6px; width: 100%; padding: 5px; background: #ffffff0a; border: 1px solid var(--border); border-radius: 4px; color: var(--accent); font-size: 10px; cursor: pointer; font-family: var(--font-mono);">&#10022; Fetch Info</button>
+        <div style="font-size: 9px; color: var(--muted); margin-top: 5px; font-family: var(--font-mono);">JPG &middot; PNG &middot; WebP</div>
+      </div>
+
+      <!-- Main fields -->
+      <div style="flex: 1; min-width: 0;">
+
+        <!-- Title -->
+        <div style="margin-bottom: 14px;">
+          <label class="field-label">Title *</label>
+          <input class="field-input" value="The Father" />
+        </div>
+
+        <!-- Media Type -->
+        <div style="margin-bottom: 14px;">
+          <label class="field-label">Media Type *</label>
+          <div id="media-type-group" style="display: flex; gap: 5px; flex-wrap: wrap;">
+            <button class="pill-btn" data-type="Movie" onclick="setMediaType(this)" style="border-color: var(--accent); background: var(--accent)22; color: var(--accent);">&#127916; Movie</button>
+            <button class="pill-btn" data-type="TV" onclick="setMediaType(this)">&#128250; TV</button>
+            <button class="pill-btn" data-type="Book" onclick="setMediaType(this)">&#128214; Book</button>
+            <button class="pill-btn" data-type="Game" onclick="setMediaType(this)">&#127918; Game</button>
+            <button class="pill-btn" data-type="Audiobook" onclick="setMediaType(this)">&#127911; Audiobook</button>
+            <button class="pill-btn" data-type="Music" onclick="setMediaType(this)">&#127925; Music</button>
+            <button class="pill-btn" data-type="Board Game" onclick="setMediaType(this)">&#127922; Board Game</button>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div style="margin-bottom: 14px;">
+          <label class="field-label">Status *</label>
+          <div id="status-group" style="display: flex; gap: 5px;">
+            <button class="pill-btn" data-color="var(--blue)" onclick="setStatus(this,'wishlist')">Wishlist</button>
+            <button class="pill-btn" data-color="var(--progress)" onclick="setStatus(this,'in-progress')">In Progress</button>
+            <button class="pill-btn" data-color="var(--seen)" onclick="setStatus(this,'consumed')">Consumed</button>
+            <button class="pill-btn" data-color="var(--dropped)" onclick="setStatus(this,'dropped')">Dropped<span class="new-badge">NEW</span></button>
+          </div>
+        </div>
+
+        <!-- Owned Locally -->
+        <div style="margin-bottom: 14px;">
+          <label class="field-label">Owned Locally</label>
+          <button id="owned-btn" onclick="toggleOwned()" class="pill-btn" style="border-color: var(--purple); background: var(--purple)22; color: var(--purple);">&#10003; Owned locally</button>
+        </div>
+
+        <!-- Rating + date consumed -->
+        <div id="rating-date-section">
+          <div style="margin-bottom: 14px;">
+            <label class="field-label">Rating (-10 to +10) &mdash; optional</label>
+            <div style="display: flex; gap: 2px; margin-bottom: 2px;" id="rating-neg"></div>
+            <div style="margin-bottom: 2px;">
+              <button class="rating-btn" onclick="setRating(this,0)" style="width: 100%;">0 &mdash; Neutral</button>
+            </div>
+            <div style="display: flex; gap: 2px;" id="rating-pos"></div>
+            <div id="rating-status" style="font-size: 10px; color: var(--muted); margin-top: 4px; font-family: var(--font-mono);">
+              Rated +9 &middot; <span style="cursor: pointer; color: var(--dropped);" onclick="clearRatingGrid()">clear</span>
+            </div>
+          </div>
+          <div style="margin-bottom: 14px;">
+            <label class="field-label">Date Consumed</label>
+            <input type="date" class="field-input" style="width: auto;" value="2026-07-19" />
+          </div>
+        </div>
+
+        <!-- Film details -->
+        <div id="fields-Film" class="type-fields" style="border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 14px;">
+          <div class="section-heading">Film details &mdash; optional</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+
+            <div><label class="field-label">Tagline<span class="new-badge">NEW</span></label><input class="field-input" value="A father, a daughter, a disappearing mind." /></div>
+            <div></div>
+
+            <div><label class="field-label">Director</label><input class="field-input" value="Florian Zeller" /></div>
+            <div><label class="field-label">Writer<span class="new-badge">NEW</span></label><input class="field-input" value="Florian Zeller, Christopher Hampton" /></div>
+            <div><label class="field-label">Composer<span class="new-badge">NEW</span></label><input class="field-input" value="Ludovico Einaudi" /></div>
+            <div><label class="field-label">Studio<span class="new-badge">NEW</span></label><input class="field-input" value="Les Films du Cru, F comme Film" /></div>
+
+            <div><label class="field-label">Genre</label><input class="field-input" value="Drama" /></div>
+            <div><label class="field-label">Year</label><input class="field-input" type="number" value="2020" /></div>
+            <div><label class="field-label">Runtime (mins)</label><input class="field-input" type="number" value="97" /></div>
+            <div><label class="field-label">Content Rating</label><input class="field-input" value="PG-13" /></div>
+
+            <div><label class="field-label">Country</label><input class="field-input" value="United Kingdom, France" /></div>
+            <div><label class="field-label">Language</label><input class="field-input" value="English" /></div>
+            <div><label class="field-label">Budget<span class="new-badge">NEW</span></label><input class="field-input" value="16000000" type="number" /></div>
+            <div><label class="field-label">Box office<span class="new-badge">NEW</span></label><input class="field-input" value="46900000" type="number" /></div>
+
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">Critic Rating <span class="new-badge">NEW — split from one field</span></label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <div>
+                  <label class="field-label" style="font-size: 8px; margin-bottom: 3px;">IMDb (0&ndash;10)</label>
+                  <input class="field-input" value="8.2" />
+                </div>
+                <div>
+                  <label class="field-label" style="font-size: 8px; margin-bottom: 3px;">Rotten Tomatoes %</label>
+                  <input class="field-input" value="98" />
+                </div>
+                <div>
+                  <label class="field-label" style="font-size: 8px; margin-bottom: 3px;">Metacritic (0&ndash;100)</label>
+                  <input class="field-input" value="88" />
+                </div>
+              </div>
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">Cast <span class="new-badge">NEW — structured, was one text field</span></label>
+              <div id="cast-list">
+                <div class="cast-row"><span class="cast-avatar">AH</span><input class="field-input" style="flex: 1;" value="Anthony Hopkins" /><input class="field-input" style="flex: 1;" value="Anthony" /><span style="cursor: pointer; color: var(--muted); font-size: 14px;" onclick="this.parentElement.remove()">&times;</span></div>
+                <div class="cast-row"><span class="cast-avatar">OC</span><input class="field-input" style="flex: 1;" value="Olivia Colman" /><input class="field-input" style="flex: 1;" value="Anne" /><span style="cursor: pointer; color: var(--muted); font-size: 14px;" onclick="this.parentElement.remove()">&times;</span></div>
+                <div class="cast-row"><span class="cast-avatar">MG</span><input class="field-input" style="flex: 1;" value="Mark Gatiss" /><input class="field-input" style="flex: 1;" value="The Man" /><span style="cursor: pointer; color: var(--muted); font-size: 14px;" onclick="this.parentElement.remove()">&times;</span></div>
+                <div class="cast-row"><span class="cast-avatar">IP</span><input class="field-input" style="flex: 1;" value="Imogen Poots" /><input class="field-input" style="flex: 1;" value="Laura" /><span style="cursor: pointer; color: var(--muted); font-size: 14px;" onclick="this.parentElement.remove()">&times;</span></div>
+                <div class="cast-row"><span class="cast-avatar">RS</span><input class="field-input" style="flex: 1;" value="Rufus Sewell" /><input class="field-input" style="flex: 1;" value="Paul" /><span style="cursor: pointer; color: var(--muted); font-size: 14px;" onclick="this.parentElement.remove()">&times;</span></div>
+                <div class="cast-row"><span class="cast-avatar">OW</span><input class="field-input" style="flex: 1;" value="Olivia Williams" /><input class="field-input" style="flex: 1;" value="Catherine" /><span style="cursor: pointer; color: var(--muted); font-size: 14px;" onclick="this.parentElement.remove()">&times;</span></div>
+              </div>
+              <button onclick="addCastRow()" style="margin-top: 4px; padding: 5px 10px; background: transparent; border: 1px dashed var(--border); border-radius: 4px; color: var(--muted); font-size: 10px; cursor: pointer; font-family: var(--font-mono);">+ Add cast member</button>
+              <div style="font-size: 9px; color: var(--muted); margin-top: 4px; font-family: var(--font-mono);">Photos are fetched automatically from TMDB — not manually entered.</div>
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">IMDB URL</label>
+              <div style="display: flex; gap: 6px;">
+                <input class="field-input" style="flex: 1;" value="https://www.imdb.com/title/tt10272386/" />
+                <button class="open-btn" style="color: var(--accent);">&#8599; Open</button>
+              </div>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">Trailer URL</label>
+              <div style="display: flex; gap: 6px;">
+                <input class="field-input" style="flex: 1;" value="https://www.youtube.com/results?search_query=The+Father+2020+trailer" />
+                <button class="open-btn" style="color: #f472b6;">&#9654; Play</button>
+              </div>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">Website URL<span class="new-badge">NEW</span></label>
+              <div style="display: flex; gap: 6px;">
+                <input class="field-input" style="flex: 1;" value="https://sonyclassics.com/thefather/" />
+                <button class="open-btn" style="color: var(--blue);">&#8599; Open</button>
+              </div>
+            </div>
+
+            <div><label class="field-label">Series</label><input class="field-input" value="The Zeller Family Trilogy" /></div>
+            <div><label class="field-label">Series Order</label><input class="field-input" type="number" placeholder="—" /></div>
+          </div>
+        </div>
+
+        <!-- TV details — current real fields only, no NEW additions yet -->
+        <div id="fields-TV" class="type-fields" style="display: none; border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 14px;">
+          <div class="section-heading">TV details &mdash; optional</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><label class="field-label">Creator</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Network / Platform</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Genre</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Year</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Seasons</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Avg Episode Runtime (mins)</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Country</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Language</label><input class="field-input" placeholder="—" /></div>
+            <div style="grid-column: 1 / -1;"><label class="field-label">Cast</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Critic Rating</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Content Rating</label><input class="field-input" placeholder="—" /></div>
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">IMDB URL</label>
+              <div style="display: flex; gap: 6px;"><input class="field-input" style="flex: 1;" placeholder="—" /><button class="open-btn" style="color: var(--accent);">&#8599; Open</button></div>
+            </div>
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">Trailer URL</label>
+              <div style="display: flex; gap: 6px;"><input class="field-input" style="flex: 1;" placeholder="—" /><button class="open-btn" style="color: #f472b6;">&#9654; Play</button></div>
+            </div>
+            <div><label class="field-label">Series</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Series Order</label><input class="field-input" type="number" placeholder="—" /></div>
+          </div>
+        </div>
+
+        <!-- Book details -->
+        <div id="fields-Book" class="type-fields" style="display: none; border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 14px;">
+          <div class="section-heading">Book details &mdash; optional</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><label class="field-label">Author</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Genre</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Year</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Page Count</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Series</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Series Order</label><input class="field-input" type="number" placeholder="—" /></div>
+          </div>
+        </div>
+
+        <!-- Audiobook details -->
+        <div id="fields-Audiobook" class="type-fields" style="display: none; border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 14px;">
+          <div class="section-heading">Audiobook details &mdash; optional</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><label class="field-label">Author</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Narrator</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Year</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Duration (mins)</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Series</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Series Order</label><input class="field-input" type="number" placeholder="—" /></div>
+          </div>
+        </div>
+
+        <!-- Game details -->
+        <div id="fields-Game" class="type-fields" style="display: none; border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 14px;">
+          <div class="section-heading">Game details &mdash; optional</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><label class="field-label">Developer</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Platform</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Genre</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Year</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Avg Playtime (hrs)</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Series</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Series Order</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">Steam URL</label>
+              <div style="display: flex; gap: 6px;"><input class="field-input" style="flex: 1;" placeholder="—" /><button class="open-btn" style="color: #4be8c8;">&#8599; Steam</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Music details -->
+        <div id="fields-Music" class="type-fields" style="display: none; border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 14px;">
+          <div class="section-heading">Music details &mdash; optional</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><label class="field-label">Artist</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Genre</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Year</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Label</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Duration (mins)</label><input class="field-input" type="number" placeholder="—" /></div>
+          </div>
+        </div>
+
+        <!-- Board Game details -->
+        <div id="fields-Board Game" class="type-fields" style="display: none; border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 14px;">
+          <div class="section-heading">Board Game details &mdash; optional</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><label class="field-label">Designer</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Category</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Year</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Player Count</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Play Time (mins)</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Complexity (1&ndash;5)</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div><label class="field-label">Series</label><input class="field-input" placeholder="—" /></div>
+            <div><label class="field-label">Series Order</label><input class="field-input" type="number" placeholder="—" /></div>
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">BGG URL</label>
+              <div style="display: flex; gap: 6px;"><input class="field-input" style="flex: 1;" placeholder="—" /><button class="open-btn" style="color: #e84b4b;">&#8599; BGG</button></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Local-only fields -->
+        <div id="local-fields" style="border-top: 1px solid var(--border); padding-top: 14px; margin-bottom: 14px;">
+          <div class="section-heading" style="color: var(--purple);">Local copy details</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div id="video-quality-field"><label class="field-label">Video Quality</label><input class="field-input" placeholder="e.g. 1080p, 4K" value="1080p" /></div>
+            <div style="grid-column: 1 / -1;">
+              <label class="field-label">Local Folder Path</label>
+              <div style="display: flex; gap: 6px;">
+                <input class="field-input" style="flex: 1;" placeholder="Path to local folder" />
+                <button class="open-btn" style="color: var(--purple);">&#128193; Open</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div style="margin-bottom: 14px;">
+          <label class="field-label">Description<span class="new-badge">NEW — split from Notes</span></label>
+          <textarea rows="3" class="field-input" style="resize: vertical; line-height: 1.5;">A man refuses all assistance from his daughter as he ages. As he tries to make sense of his changing circumstances, he begins to doubt his loved ones, his own mind and even the fabric of his reality.</textarea>
+          <div style="font-size: 9px; color: var(--muted); margin-top: 4px; font-family: var(--font-mono);">Auto-filled from TMDB — edit if you want to override it.</div>
+        </div>
+
+        <!-- Notes -->
+        <div style="margin-bottom: 4px;">
+          <label class="field-label">Notes &mdash; optional</label>
+          <textarea rows="3" class="field-input" style="resize: vertical; line-height: 1.5;">Watched over the holidays — Hopkins is devastating in this, hardest watch of the year, in a good way.</textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="display: flex; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--border); flex-shrink: 0;">
+      <button style="flex: 1; padding: 9px; background: var(--accent); color: var(--bg); border: none; border-radius: 5px; font-size: 13px; font-weight: 700; cursor: pointer;">Save Changes</button>
+      <button style="padding: 9px 18px; background: transparent; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); font-size: 13px; cursor: pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var STATUS_COLORS = { wishlist: 'var(--blue)', 'in-progress': 'var(--progress)', consumed: 'var(--seen)', dropped: 'var(--dropped)' };
+
+function setStatus(btn, val) {
+  document.querySelectorAll('#status-group .pill-btn').forEach(function (b) {
+    b.style.borderColor = 'var(--border)';
+    b.style.background = 'transparent';
+    b.style.color = 'var(--muted)';
+  });
+  var color = STATUS_COLORS[val];
+  btn.style.borderColor = color;
+  btn.style.background = color === 'var(--dropped)' ? 'rgba(232,75,110,0.15)' : color + '22';
+  btn.style.color = color;
+  document.getElementById('rating-date-section').style.display = val === 'consumed' ? 'block' : 'none';
+}
+
+function toggleOwned() {
+  var btn = document.getElementById('owned-btn');
+  var owned = btn.textContent.indexOf('Owned locally') !== -1;
+  if (owned) {
+    btn.textContent = 'Not owned locally';
+    btn.style.borderColor = 'var(--border)';
+    btn.style.background = 'transparent';
+    btn.style.color = 'var(--muted)';
+    document.getElementById('local-fields').style.display = 'none';
+  } else {
+    btn.textContent = '✓ Owned locally';
+    btn.style.borderColor = 'var(--purple)';
+    btn.style.background = 'rgba(176,110,240,0.13)';
+    btn.style.color = 'var(--purple)';
+    document.getElementById('local-fields').style.display = 'block';
+  }
+}
+
+function buildRatingRow(containerId, values) {
+  var container = document.getElementById(containerId);
+  values.forEach(function (n) {
+    var btn = document.createElement('button');
+    btn.className = 'rating-btn';
+    btn.textContent = n > 0 ? '+' + n : String(n);
+    btn.onclick = function () { setRating(btn, n); };
+    if (n === 9) {
+      btn.style.borderColor = '#4bb87a';
+      btn.style.background = 'rgba(75,184,122,0.2)';
+      btn.style.color = '#4bb87a';
+    }
+    container.appendChild(btn);
+  });
+}
+buildRatingRow('rating-neg', [-10,-9,-8,-7,-6,-5,-4,-3,-2,-1]);
+buildRatingRow('rating-pos', [1,2,3,4,5,6,7,8,9,10]);
+
+function setRating(btn, n) {
+  document.querySelectorAll('#rating-neg .rating-btn, #rating-pos .rating-btn').forEach(function (b) {
+    b.style.borderColor = 'var(--border)'; b.style.background = 'transparent'; b.style.color = 'var(--muted)';
+  });
+  var color = n > 0 ? '#4bb87a' : (n < 0 ? '#e84b6e' : 'var(--dim)');
+  btn.style.borderColor = color;
+  btn.style.background = color + '33';
+  btn.style.color = color;
+  document.getElementById('rating-status').innerHTML = 'Rated ' + (n > 0 ? '+' + n : n) + ' &middot; <span style="cursor:pointer;color:var(--dropped);" onclick="clearRatingGrid()">clear</span>';
+}
+function clearRatingGrid() {
+  document.querySelectorAll('#rating-neg .rating-btn, #rating-pos .rating-btn').forEach(function (b) {
+    b.style.borderColor = 'var(--border)'; b.style.background = 'transparent'; b.style.color = 'var(--muted)';
+  });
+  document.getElementById('rating-status').textContent = 'No rating set';
+}
+
+function addCastRow() {
+  var row = document.createElement('div');
+  row.className = 'cast-row';
+  row.innerHTML = '<span class="cast-avatar">?</span>' +
+    '<input class="field-input" style="flex:1;" placeholder="Name" />' +
+    '<input class="field-input" style="flex:1;" placeholder="Role" />' +
+    '<span style="cursor:pointer;color:var(--muted);font-size:14px;" onclick="this.parentElement.remove()">&times;</span>';
+  document.getElementById('cast-list').appendChild(row);
+}
+
+function setMediaType(btn) {
+  document.querySelectorAll('#media-type-group .pill-btn').forEach(function (b) {
+    b.style.borderColor = 'var(--border)';
+    b.style.background = 'transparent';
+    b.style.color = 'var(--muted)';
+  });
+  btn.style.borderColor = 'var(--accent)';
+  btn.style.background = 'var(--accent)22';
+  btn.style.color = 'var(--accent)';
+
+  var type = btn.getAttribute('data-type');
+  document.querySelectorAll('.type-fields').forEach(function (el) { el.style.display = 'none'; });
+  document.getElementById('fields-' + type).style.display = 'block';
+
+  var vq = document.getElementById('video-quality-field');
+  vq.style.display = (type === 'Film' || type === 'TV') ? 'block' : 'none';
+}
+
+// Set the default active status pill on load
+document.querySelector('#status-group .pill-btn[data-color="var(--seen)"]').click();
+</script>

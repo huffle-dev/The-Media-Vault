@@ -1,0 +1,874 @@
+<title>The Media Vault — Top Bar</title>
+<style>
+  :root {
+    --bg: #09090e; --surface: #111118; --surface2: #18181f; --topbar: #070710;
+    --border: #1e1e2a; --text: #ddddf0; --muted: #555570; --dim: #888899;
+    --accent: #e8b84b; --seen: #4bb87a; --blue: #5b8ff5; --purple: #b06ef0; --progress: #f59e0b;
+    --font-sans: 'DM Sans', sans-serif; --font-mono: 'DM Mono', monospace; --font-display: 'DM Serif Display', serif;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-sans); margin: 0; }
+
+  .wrap { max-width: 1480px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  .mode-switcher { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .mode-btn {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.03em;
+    padding: 7px 14px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--surface); color: var(--dim);
+  }
+  .mode-btn.active { border-color: var(--accent); color: var(--accent); background: #e8b84b18; }
+
+  .mode-label { font-family: var(--font-mono); font-size: 10.5px; color: var(--muted); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+  .frame { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--bg); }
+  .mock-body { height: 90px; background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12px; font-family: var(--font-mono); }
+
+  .view-block { display: none; }
+  .view-block.active { display: block; }
+
+  .row1 { display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 14px; overflow-x: auto; background: var(--topbar); border-bottom: 1px solid var(--border); }
+  .row2 { display: flex; align-items: center; gap: 6px; padding: 0 14px 7px; overflow-x: auto; background: var(--topbar); }
+  .row3 { display: flex; align-items: center; gap: 6px; padding: 0 14px 8px; overflow-x: auto; background: var(--topbar); }
+
+  /* No horizontal scroll — content wraps to additional lines instead, height grows to fit. */
+  .row1.fit-wrap, .row2.fit-wrap, .row3.fit-wrap { flex-wrap: wrap; overflow-x: visible; height: auto; min-height: 46px; padding: 8px 14px; row-gap: 6px; }
+  .row2.fit-wrap, .row3.fit-wrap { border-top: 1px solid var(--border); }
+
+  /* Three separate groups — wordmark | status+owned | media type — each with its own
+     trailing divider. Nothing here resizes at any width — every control keeps the exact
+     same dimensions as the Current view. When space runs out, content wraps to another
+     line; it never shrinks. */
+  .divider-group { display: flex; align-items: center; gap: 8px; flex-shrink: 0; border-right: 1px solid var(--border); padding-right: 8px; }
+
+  /* Fixed width so cycling between "in progress" / "watch/wish" / "completed" doesn't resize it
+     at every width down to mobile, where it switches to filling the line instead (below). */
+  #status-cycle-pill { width: 98px; justify-content: center; }
+  #status-cycle-pill .l { flex: 1; text-align: left; }
+
+  /* Mobile: wordmark + Status + Owned + Settings share the first line. Status grows to fill
+     the remaining space; Owned stays small/natural width; Settings moves up next to Owned
+     via `order` rather than duplicating the button. Everything else (media type, cyclers,
+     Online Search/Import/Add) drops to the following lines, unchanged in size. */
+  .resize-frame { container-type: inline-size; container-name: topbar; }
+
+  /* Tile size / spacing / overlay / view toggle / stats — scaled down (not wrapped to their
+     own line) once the row gets tight, so they stay on the same line as All / More / +. */
+  @container topbar (max-width: 860px) {
+    #tile-controls-group { gap: 4px; padding-right: 6px; }
+    #tile-controls-group .cycle-btn { width: 22px; height: 20px; font-size: 8.5px; }
+    #tile-controls-group .icon-btn { width: 20px; height: 20px; font-size: 10px; }
+    #tile-controls-group .view-toggle { padding: 1px; }
+  }
+
+  /* Tablet: wordmark/status/settings comfortably fit on one line at this width without
+     needing to compact — so this tier reuses only HALF of the mobile technique below: group
+     mediatype + tile-controls onto their own line and grow mediatype-group to keep that
+     line's right edge (Stats) aligned with Settings above. It does not force button sizes
+     down to 26px like mobile does — there's enough room here that the 860px tier's lighter
+     cycler/icon shrink is enough on its own. Placed before the 480px tier so mobile's rules,
+     being narrower and appearing later, still correctly win once the mobile tier applies. */
+  @container topbar (max-width: 900px) {
+    .row1.fit-wrap #wordmark-group { order: 1; }
+    .row1.fit-wrap #status-group { order: 1; flex: 1 1 auto; }
+    .row1.fit-wrap #status-cycle-pill { flex: 1 1 auto; width: auto; justify-content: center; }
+    .row1.fit-wrap #settings-btn { order: 2; }
+    .row1.fit-wrap #mediatype-group {
+      order: 3; flex: 1 1 auto;
+      border-right: 1px solid var(--border); padding-right: 8px;
+    }
+    .row1.fit-wrap .spacer { order: 4; flex: 0 0 0; min-width: 0; }
+    .row1.fit-wrap > *:not(#wordmark-group):not(#status-group):not(#settings-btn):not(#mediatype-group):not(.spacer) { order: 5; }
+    .row1.fit-wrap #tile-controls-group { border-right: none; padding-right: 0; }
+
+    /* All and More grow equally to fill the space up to "+" — same reasoning as mobile:
+       without this, mediatype-group's growth just shows up as dead space after "+". */
+    #mediatype-group #fit-tab-group { flex: 1 1 auto; }
+    #mediatype-group #all-tab { flex: 1 1 0; justify-content: center; }
+    #mediatype-group .more-wrapper { flex: 1 1 0; display: flex; }
+    #mediatype-group #more-tab { flex: 1 1 auto; justify-content: center; }
+  }
+
+  /* Tablet only, NOT mobile: row 2 collapses back to a single line — Filter, Country, Sort,
+     divider, Online Search, then Local Search filling whatever's left. The `min-width: 481px`
+     is what keeps this from ever applying at mobile width; below that, the two-line split
+     (Local Search always alone on its own line) still applies exactly as before, untouched. */
+  @container topbar (min-width: 481px) and (max-width: 900px) {
+    .row2.fit-wrap { flex-direction: row; flex-wrap: nowrap; }
+    #row2-line1 { flex: 0 0 auto; width: auto; }
+    #row2-line2 { flex: 1 1 auto; width: auto; }
+  }
+
+  @container topbar (max-width: 480px) {
+    #status-group { flex: 1 1 auto; width: auto; border-right: none; padding-right: 0; }
+    .row1.fit-wrap #status-cycle-pill { flex: 1 1 auto; width: auto; justify-content: center; }
+    #status-group .stat-pill:not(#status-cycle-pill) { flex: 0 0 auto; }
+
+    .row1.fit-wrap #wordmark-group { order: 1; border-right: none; padding-right: 0; }
+    .row1.fit-wrap #status-group { order: 1; }
+    .row1.fit-wrap #settings-btn { order: 2; }
+    /* mediatype-group grows to soak up whatever room tile-controls-group's fixed width
+       doesn't need — that's what pushes tile-controls-group's right edge (ending at Stats)
+       out to the same right-hand edge that Settings sits at on the line above, via
+       Status-group's own flex-grow. */
+    .row1.fit-wrap #mediatype-group { order: 3; flex: 1 1 auto; }
+    .row1.fit-wrap .spacer { order: 4; flex: 0 0 0; min-width: 0; }
+    .row1.fit-wrap > *:not(#wordmark-group):not(#status-group):not(#settings-btn):not(#mediatype-group):not(.spacer) { order: 5; }
+
+    /* Divider between mediatype-group and tile-controls-group: explicit and symmetric —
+       8px padding inside mediatype-group's own border, 8px row gap outside it. */
+    .row1.fit-wrap #mediatype-group { border-right: 1px solid var(--border); padding-right: 8px; }
+    /* No divider after Stats (tile-controls-group's own trailing edge) — its right side
+       just aligns with Settings via the flex-grow above, no line needed there. */
+    .row1.fit-wrap #tile-controls-group { border-right: none; padding-right: 0; gap: 4px; }
+
+    /* All and More grow equally to fill the space up to "+", which stays fixed-size. */
+    #mediatype-group #fit-tab-group { flex: 1 1 auto; gap: 4px; }
+    #mediatype-group #all-tab { flex: 1 1 0; justify-content: center; }
+    #mediatype-group .more-wrapper { flex: 1 1 0; display: flex; }
+    #mediatype-group #more-tab { flex: 1 1 auto; justify-content: center; }
+    #mediatype-group .types-picker-wrapper { flex: 0 0 auto; }
+    #mediatype-group .stepper-btn { flex: 0 0 auto; width: 26px; height: 26px; }
+
+    /* Everything here is matched to the Settings button's own size (26x26, the plain
+       .icon-btn default) so the whole line reads as one consistent set — cycle buttons and
+       the stats icon are brought to exactly 26x26; All/More and the view toggle are matched
+       on height only (including their own padding), since their width is naturally
+       text/content-driven (or, for All/More, now flex-grown per above). */
+    #mediatype-group .tab-btn { height: 26px; padding: 4px 10px; }
+    #tile-controls-group .cycle-btn { width: 26px; height: 26px; }
+    #tile-controls-group .icon-btn { width: 26px; height: 26px; }
+    #tile-controls-group .view-toggle { height: 26px; padding: 2px; }
+    #tile-controls-group .view-toggle .icon-btn { width: 22px; height: 22px; }
+  }
+
+  .stepper-btn { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 4px; color: var(--dim); font-size: 12px; line-height: 1; cursor: pointer; background: transparent; }
+  .stepper-btn:hover { color: var(--text); border-color: var(--dim); }
+
+  .more-menu-item { padding: 8px 12px; font-family: var(--font-sans); font-size: 11.5px; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .more-menu-item:hover { background: var(--surface); }
+
+  .filter-menu-panel {
+    display: none; position: absolute; top: 28px; left: 0; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    z-index: 20; padding: 10px; flex-direction: column; gap: 8px; width: 220px;
+  }
+  .filter-menu-panel .filter-field { justify-content: flex-start; }
+  .filter-menu-panel .filter-label { width: 72px; flex-shrink: 0; }
+  .filter-menu-panel .select-like {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .more-menu-panel {
+    display: none; position: absolute; top: 28px; right: 0; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    z-index: 20; max-height: 260px; overflow-y: auto; min-width: 160px;
+  }
+  .sort-item.active { color: var(--accent); background: var(--surface); }
+
+  #fit-region-btn { width: 26px; height: 26px; padding: 0; }
+
+  /* Row 2 is two stacked lines, not one wrapping line — Local Search always gets its own
+     full-width line, it doesn't just happen to land there when space runs out. */
+  .row2.fit-wrap { flex-direction: column; align-items: stretch; }
+  .row2-line { display: flex; align-items: center; gap: 8px; width: 100%; }
+  .row2-part { display: flex; align-items: center; gap: 8px; }
+  /* Width is set by JS (alignOnlineSearchWithStats) so Online Search's right edge lands
+     exactly on the Stats button's right edge in row 1. Fixed basis so that width sticks. */
+  #row2-part-a { flex: 0 0 auto; }
+  #online-search-btn { flex: 0 0 auto; }
+  #local-search-box { flex: 1 1 auto; width: 100%; }
+  #local-search-box input { width: 100%; }
+
+  #sort-btn { width: 110px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Everything on row 2 matches the Country button's 26px height. `display: inline-flex` is
+     required, not decorative: Filter and Sort are inline <span>s nested inside their
+     position:relative dropdown wrappers, so they are NOT flex items of the row and a bare
+     `height` on an inline element is ignored. inline-flex makes height apply and centers the
+     label vertically. Widths are untouched. */
+  .row2.fit-wrap .ghost-btn,
+  .row2.fit-wrap .region-btn,
+  .row2.fit-wrap .search-box {
+    height: 26px; display: inline-flex; align-items: center; box-sizing: border-box;
+  }
+  .row2.fit-wrap .search-box input { height: 26px; box-sizing: border-box; }
+  #row2-vdiv { height: 26px; }
+
+  /* The wrapper divs themselves (not just the buttons inside them) need to be exactly 26px
+     and flex — otherwise an inline-flex child leaves the block-level wrapper a few px
+     taller than 26px (ordinary inline-formatting line-height slack), and align-items:center
+     on the row then centers each wrapper at a slightly different effective height, throwing
+     the buttons out of level with each other even though each button's own box is 26px. */
+  .row2.fit-wrap .filter-wrapper,
+  .row2.fit-wrap .sort-wrapper {
+    height: 26px; display: inline-flex; align-items: center;
+  }
+
+  .type-check-row { padding: 7px 12px; font-family: var(--font-sans); font-size: 11.5px; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+  .type-check-row:hover { background: var(--surface); }
+  .type-check-row input { accent-color: var(--accent); cursor: pointer; }
+
+  .width-presets { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .width-presets .lbl { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .width-btn { font-family: var(--font-mono); font-size: 10.5px; padding: 5px 11px; border-radius: 5px; cursor: pointer; border: 1px solid var(--border); background: var(--surface); color: var(--dim); }
+  .width-btn.active { border-color: var(--blue); color: var(--blue); background: #5b8ff518; }
+  /* No overflow:hidden here — dropdowns (Filter, More, +, Import) are absolutely positioned
+     inside this frame and need to be able to extend past its edge without being clipped.
+     Rounded-corner look comes from rounding the first/last row directly instead. */
+  .resize-frame { border: 1px solid var(--border); border-radius: 8px; background: var(--bg); margin: 0 auto; transition: max-width 0.25s ease; }
+  .resize-frame .row1:first-child { border-radius: 7px 7px 0 0; }
+  .resize-frame > div:last-child { border-radius: 0 0 7px 7px; }
+
+  .wordmark { font-family: var(--font-display); font-size: 16px; color: var(--accent); letter-spacing: -0.02em; flex-shrink: 0; white-space: nowrap; }
+
+  .stat-pills { display: flex; gap: 4px; align-items: center; padding: 0 8px; flex-shrink: 0; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  .stat-pill { display: flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 100px; cursor: pointer; font-family: var(--font-mono); letter-spacing: 0.03em; flex-shrink: 0; border: 1px solid var(--border); background: transparent; white-space: nowrap; }
+  .stat-pill .n { font-weight: 700; font-size: 12px; min-width: 3ch; text-align: right; font-variant-numeric: tabular-nums; color: var(--pill-color, var(--accent)); }
+  .stat-pill .l { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  .stat-pill.active { background: var(--pill-color, var(--accent)); border-color: var(--pill-color, var(--accent)); }
+  .stat-pill.active .n, .stat-pill.active .l { color: var(--bg); }
+
+  .tab-group { display: flex; align-items: center; gap: 1px; flex-shrink: 0; border-right: 1px solid var(--border); padding-right: 8px; }
+  .tab-btn { display: flex; align-items: center; gap: 4px; padding: 4px 10px; border: none; cursor: pointer; background: transparent; color: var(--muted); font-size: 11px; border-radius: 4px; border-bottom: 2px solid transparent; font-family: var(--font-sans); white-space: nowrap; }
+  .tab-btn.active { font-weight: 600; }
+
+  .spacer { flex: 1; min-width: 12px; }
+
+  .icon-btn { width: 26px; height: 26px; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--muted); font-size: 13px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+  .cycle-btn { width: 28px; height: 26px; border: 1px solid var(--border); border-radius: 4px; background: #e8b84b22; color: var(--accent); font-size: 10px; font-weight: 700; font-family: var(--font-mono); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .view-toggle { display: flex; background: var(--surface); border-radius: 4px; padding: 2px; border: 1px solid var(--border); flex-shrink: 0; }
+  .ghost-btn { padding: 4px 12px; background: transparent; border: 1px solid var(--border); color: var(--muted); border-radius: 5px; font-size: 11px; cursor: pointer; font-family: var(--font-sans); flex-shrink: 0; white-space: nowrap; }
+  .primary-btn { padding: 4px 14px; background: var(--accent); color: var(--bg); border: none; border-radius: 5px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: var(--font-sans); flex-shrink: 0; white-space: nowrap; }
+
+  .filter-field { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .filter-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-family: var(--font-mono); flex-shrink: 0; }
+  select, .select-like { height: 26px; padding: 0 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; color: var(--muted); font-size: 10px; cursor: pointer; flex-shrink: 0; font-family: var(--font-mono); }
+  .search-box { position: relative; flex-shrink: 0; }
+  .search-box input { width: 160px; padding: 4px 10px 4px 26px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 11px; outline: none; font-family: var(--font-sans); }
+  .search-box .icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 12px; }
+  .vdiv { width: 1px; height: 16px; background: var(--border); flex-shrink: 0; }
+  .region-btn { height: 26px; padding: 0 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 4px; background: #e8b84b22; color: var(--accent); font-size: 10px; font-weight: 700; font-family: var(--font-mono); cursor: pointer; }
+
+  .callout { margin: 14px 0; padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; font-size: 12.5px; line-height: 1.6; color: var(--dim); }
+  .callout b { color: var(--text); }
+  .callout.warn { border-left-color: #e84b6e; }
+  .callout.good { border-left-color: var(--seen); }
+
+  .spec-box { border: 1px solid var(--border); border-radius: 8px; padding: 16px 18px; background: var(--surface); margin-top: 4px; }
+  .spec-row-header { font-family: var(--font-mono); font-size: 10.5px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 6px; }
+  .spec-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .spec-table td { padding: 5px 8px 5px 0; vertical-align: top; color: var(--dim); line-height: 1.5; }
+  .spec-table td:first-child { width: 22px; color: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+  .spec-table td:nth-child(2) { width: 150px; color: var(--text); font-weight: 600; white-space: nowrap; }
+  .spec-table code { font-family: var(--font-mono); font-size: 11px; color: var(--accent); }
+  .spec-div { display: inline-block; font-family: var(--font-mono); font-size: 10px; color: var(--muted); padding: 2px 0; }
+</style>
+
+<div class="wrap">
+
+  <div class="mode-switcher">
+    <span class="mode-btn active" data-mode="current" onclick="setMode(this)">Current (today)</span>
+    <span class="mode-btn" data-mode="naive" onclick="setMode(this)">All types added, unchanged layout</span>
+    <span class="mode-btn" data-mode="grouped" onclick="setMode(this)">Redesigned: grouped categories</span>
+    <span class="mode-btn" data-mode="fit" onclick="setMode(this)">Your suggestion: fit-to-window</span>
+  </div>
+
+  <!-- ================= CURRENT ================= -->
+  <div class="view-block active" id="view-current">
+    <div class="mode-label">Row 1 — identity, quick stats, media-type tabs, view controls, actions</div>
+    <div class="frame">
+      <div class="row1">
+        <div class="wordmark">The Media Vault</div>
+        <div class="stat-pills">
+          <span class="stat-pill" style="--pill-color: var(--accent);"><span class="n">281</span><span class="l">all</span></span>
+          <span class="stat-pill" style="--pill-color: var(--blue);"><span class="n">232</span><span class="l">watch/wish</span></span>
+          <span class="stat-pill active" style="--pill-color: var(--progress);"><span class="n">31</span><span class="l">in progress</span></span>
+          <span class="stat-pill" style="--pill-color: var(--seen);"><span class="n">18</span><span class="l">completed</span></span>
+          <span class="stat-pill" style="--pill-color: var(--accent);"><span class="n">18</span><span class="l">rated</span></span>
+          <span class="stat-pill" style="--pill-color: var(--purple);"><span class="n">2</span><span class="l">owned</span></span>
+        </div>
+        <div class="tab-group">
+          <span class="tab-btn" style="color: var(--text);">All</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127916; Movies</span>
+          <span class="tab-btn active" style="color: var(--blue); background: var(--blue)22; border-bottom-color: var(--blue);">&#128250; TV</span>
+          <span class="tab-btn" style="color: var(--muted);">&#128214; Books</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127918; Games</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127911; Audiobooks</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127925; Music</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127922; Board Games</span>
+        </div>
+        <div class="spacer"></div>
+        <span class="icon-btn" title="Stats"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8 L8 1.5 A6.5 6.5 0 0 1 14.5 8 Z" fill="currentColor"/></svg></span>
+        <span class="cycle-btn" title="Tile size">M</span>
+        <span class="cycle-btn" title="Spacing">&middot;&middot;</span>
+        <span class="cycle-btn" title="Overlay">TI</span>
+        <div class="view-toggle">
+          <span class="icon-btn" style="border: none; color: var(--text);">&#8862;</span>
+          <span class="icon-btn" style="border: none;">&#9776;</span>
+        </div>
+        <span class="ghost-btn">&#8981; Search</span>
+        <span class="ghost-btn">&#8595; Import</span>
+        <span class="primary-btn">+ Add</span>
+        <span class="icon-btn" title="Settings">&#9881;</span>
+      </div>
+      <div class="row2">
+        <div class="filter-field"><span class="filter-label">Filter</span><span class="select-like">All Genres</span></div>
+        <span class="select-like">All Age Ratings</span>
+        <span class="select-like">All Lists</span>
+        <span class="select-like">Any Rating</span>
+        <span class="select-like">Any Critic Score</span>
+        <span class="select-like">Where to Watch</span>
+        <span class="region-btn">US</span>
+        <span class="icon-btn" title="Refresh streaming settings">&#8635;</span>
+        <div class="search-box"><input placeholder="Search…"><span class="icon">&#8981;</span></div>
+        <div class="vdiv"></div>
+        <div class="filter-field"><span class="filter-label">Sort</span><span class="select-like">Recently Added</span></div>
+      </div>
+    </div>
+
+    <div class="callout good">
+      This is a faithful replica of the real <b>TopBar.jsx</b> — same tokens, same two-row layout, same 8 <b>TYPE_TABS</b> (All, Movies, TV, Books, Games, Audiobooks, Music, Board Games). Row 1 already scrolls horizontally on narrower windows, but with 8 tabs it rarely needs to.
+    </div>
+  </div>
+
+  <!-- ================= NAIVE: ALL TYPES ================= -->
+  <div class="view-block" id="view-naive">
+    <div class="mode-label">Same layout, same approach — just every type from this session added as its own tab</div>
+    <div class="frame">
+      <div class="row1">
+        <div class="wordmark">The Media Vault</div>
+        <div class="stat-pills">
+          <span class="stat-pill" style="--pill-color: var(--accent);"><span class="n">281</span><span class="l">all</span></span>
+          <span class="stat-pill" style="--pill-color: var(--blue);"><span class="n">232</span><span class="l">watch/wish</span></span>
+          <span class="stat-pill active" style="--pill-color: var(--progress);"><span class="n">31</span><span class="l">in progress</span></span>
+          <span class="stat-pill" style="--pill-color: var(--seen);"><span class="n">18</span><span class="l">completed</span></span>
+          <span class="stat-pill" style="--pill-color: var(--accent);"><span class="n">18</span><span class="l">rated</span></span>
+          <span class="stat-pill" style="--pill-color: var(--purple);"><span class="n">2</span><span class="l">owned</span></span>
+        </div>
+        <div class="tab-group">
+          <span class="tab-btn" style="color: var(--text);">All</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127916; Movies</span>
+          <span class="tab-btn active" style="color: var(--blue); background: var(--blue)22; border-bottom-color: var(--blue);">&#128250; TV</span>
+          <span class="tab-btn" style="color: var(--muted);">&#128214; Books</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127918; Games</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127911; Audiobooks</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127925; Music</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127922; Board Games</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127908; Podcasts</span>
+          <span class="tab-btn" style="color: var(--muted);">&#127220; TCG</span>
+          <span class="tab-btn" style="color: var(--muted);">&#128218; Graphic Novels</span>
+          <span class="tab-btn" style="color: var(--muted);">&#128249; Web Videos</span>
+          <span class="tab-btn" style="color: var(--muted);">&#128009; Tabletop Games</span>
+          <span class="tab-btn" style="color: var(--muted);">&#128278; Websites</span>
+          <span class="tab-btn" style="color: var(--muted);">&#128191; Vinyl Records</span>
+          <span class="tab-btn" style="color: var(--muted); opacity: 0.6;">&#8230; +N more custom</span>
+        </div>
+        <div class="spacer"></div>
+        <span class="icon-btn" title="Stats"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8 L8 1.5 A6.5 6.5 0 0 1 14.5 8 Z" fill="currentColor"/></svg></span>
+        <span class="cycle-btn" title="Tile size">M</span>
+        <span class="cycle-btn" title="Spacing">&middot;&middot;</span>
+        <span class="cycle-btn" title="Overlay">TI</span>
+        <div class="view-toggle">
+          <span class="icon-btn" style="border: none; color: var(--text);">&#8862;</span>
+          <span class="icon-btn" style="border: none;">&#9776;</span>
+        </div>
+        <span class="ghost-btn">&#8981; Search</span>
+        <span class="ghost-btn">&#8595; Import</span>
+        <span class="primary-btn">+ Add</span>
+        <span class="icon-btn" title="Settings">&#9881;</span>
+      </div>
+      <div class="row2">
+        <div class="filter-field"><span class="filter-label">Filter</span><span class="select-like">All Genres</span></div>
+        <span class="select-like">All Age Ratings</span>
+        <span class="select-like">All Lists</span>
+        <span class="select-like">Any Rating</span>
+        <span class="select-like">Any Critic Score</span>
+        <span class="select-like">Where to Watch</span>
+        <span class="region-btn">US</span>
+        <span class="icon-btn" title="Refresh streaming settings">&#8635;</span>
+        <div class="search-box"><input placeholder="Search…"><span class="icon">&#8981;</span></div>
+        <div class="vdiv"></div>
+        <div class="filter-field"><span class="filter-label">Sort</span><span class="select-like">Recently Added</span></div>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <b>This is the problem.</b> 15 tabs (and growing — every new custom type adds one more, forever) blows the row width past comfortable window sizes. In the real app this row already scrolls horizontally, so it technically "works," but tabs 9 onward are invisible until you scroll sideways past the ones you actually use daily. Every other control here — cyclers, view toggle, Search/Import/Add, the filters row — is untouched from the Current view; the tab row is the only thing that changed. Custom types make this literally unbounded, which a flat tab row can't gracefully absorb.
+    </div>
+  </div>
+
+  <!-- ================= REDESIGNED: GROUPED ================= -->
+  <div class="view-block" id="view-grouped">
+    <div class="mode-label">Category tabs stay fixed at ~6; media types nest one level down — try clicking a category</div>
+    <div class="frame">
+      <div class="row1">
+        <div class="wordmark">The Media Vault</div>
+        <div class="stat-pills">
+          <span class="stat-pill" style="--pill-color: var(--accent);"><span class="n">281</span><span class="l">all</span></span>
+          <span class="stat-pill" style="--pill-color: var(--blue);"><span class="n">232</span><span class="l">watch/wish</span></span>
+          <span class="stat-pill active" style="--pill-color: var(--progress);"><span class="n">31</span><span class="l">in progress</span></span>
+          <span class="stat-pill" style="--pill-color: var(--seen);"><span class="n">18</span><span class="l">completed</span></span>
+          <span class="stat-pill" style="--pill-color: var(--accent);"><span class="n">18</span><span class="l">rated</span></span>
+          <span class="stat-pill" style="--pill-color: var(--purple);"><span class="n">2</span><span class="l">owned</span></span>
+        </div>
+        <div class="tab-group" id="category-tabs">
+          <span class="tab-btn active" data-cat="all" onclick="setCategory(this)" style="color: var(--accent); border-bottom-color: var(--accent);">All</span>
+          <span class="tab-btn" data-cat="watch" onclick="setCategory(this)" style="color: var(--muted);">&#128250; Watch</span>
+          <span class="tab-btn" data-cat="read" onclick="setCategory(this)" style="color: var(--muted);">&#128214; Read</span>
+          <span class="tab-btn" data-cat="listen" onclick="setCategory(this)" style="color: var(--muted);">&#127925; Listen</span>
+          <span class="tab-btn" data-cat="play" onclick="setCategory(this)" style="color: var(--muted);">&#127918; Play</span>
+          <span class="tab-btn" data-cat="other" onclick="setCategory(this)" style="color: var(--muted);">&#128278; Other</span>
+        </div>
+        <div class="spacer"></div>
+        <span class="icon-btn" title="Stats"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8 L8 1.5 A6.5 6.5 0 0 1 14.5 8 Z" fill="currentColor"/></svg></span>
+        <span class="cycle-btn" title="Tile size">M</span>
+        <span class="cycle-btn" title="Spacing">&middot;&middot;</span>
+        <span class="cycle-btn" title="Overlay">TI</span>
+        <div class="view-toggle">
+          <span class="icon-btn" style="border: none; color: var(--text);">&#8862;</span>
+          <span class="icon-btn" style="border: none;">&#9776;</span>
+        </div>
+        <span class="ghost-btn">&#8981; Search</span>
+        <span class="ghost-btn">&#8595; Import</span>
+        <span class="primary-btn">+ Add</span>
+        <span class="icon-btn" title="Settings">&#9881;</span>
+      </div>
+
+      <!-- sub-type row: hidden for "all", shown per category -->
+      <div class="row3" id="subtype-row" data-cat="watch" style="display: none;">
+        <div class="tab-group" style="border-right: none; padding-right: 0;">
+          <span class="tab-btn active" style="color: var(--blue); border-bottom-color: var(--blue); font-size: 10.5px;">All in Watch</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#127916; Movies</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#128250; TV</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#128249; Web Videos</span>
+        </div>
+      </div>
+      <div class="row3" id="subtype-row-read" data-cat="read" style="display: none;">
+        <div class="tab-group" style="border-right: none; padding-right: 0;">
+          <span class="tab-btn active" style="color: #e87a4b; border-bottom-color: #e87a4b; font-size: 10.5px;">All in Read</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#128214; Books</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#128218; Graphic Novels</span>
+        </div>
+      </div>
+      <div class="row3" id="subtype-row-listen" data-cat="listen" style="display: none;">
+        <div class="tab-group" style="border-right: none; padding-right: 0;">
+          <span class="tab-btn active" style="color: #f472b6; border-bottom-color: #f472b6; font-size: 10.5px;">All in Listen</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#127925; Music</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#127911; Audiobooks</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#127908; Podcasts</span>
+        </div>
+      </div>
+      <div class="row3" id="subtype-row-play" data-cat="play" style="display: none;">
+        <div class="tab-group" style="border-right: none; padding-right: 0;">
+          <span class="tab-btn active" style="color: #4be8c8; border-bottom-color: #4be8c8; font-size: 10.5px;">All in Play</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#127918; Games</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#127922; Board Games</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#128009; Tabletop Games</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#127220; TCG</span>
+        </div>
+      </div>
+      <div class="row3" id="subtype-row-other" data-cat="other" style="display: none;">
+        <div class="tab-group" style="border-right: none; padding-right: 0;">
+          <span class="tab-btn active" style="color: var(--dim); border-bottom-color: var(--dim); font-size: 10.5px;">All in Other</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#128278; Websites</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px;">&#128191; Vinyl Records</span>
+          <span class="tab-btn" style="color: var(--muted); font-size: 10.5px; opacity: 0.6;">&#8230; other custom types</span>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="filter-field"><span class="filter-label">Filter</span><span class="select-like">All Genres</span></div>
+        <span class="select-like">All Age Ratings</span>
+        <span class="select-like">All Lists</span>
+        <span class="select-like">Any Rating</span>
+        <span class="select-like">Any Critic Score</span>
+        <span class="select-like">Where to Watch</span>
+        <span class="region-btn">US</span>
+        <span class="icon-btn" title="Refresh streaming settings">&#8635;</span>
+        <div class="search-box"><input placeholder="Search…"><span class="icon">&#8981;</span></div>
+        <div class="vdiv"></div>
+        <div class="filter-field"><span class="filter-label">Sort</span><span class="select-like">Recently Added</span></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <b>Row 1 stays at 6 tabs (All + 5 categories) forever</b>, no matter how many concrete or custom types exist — a new custom type just slots into <b>Other</b> (or you could let it join an existing category later; kept simple here). Clicking a category reveals a second, smaller sub-type row scoped to just that group, so within "Play" you're choosing between 4 tabs, not 14. This is the same interaction depth as today (2 clicks to reach a specific type: category → sub-type) — it's actually <i>fewer</i> total visible tabs than the current 8, while scaling to any number of future types without redesigning again.
+    </div>
+    <div class="callout warn" style="margin-top: 10px;">
+      Trade-off worth naming: a specific type is now one click deeper (category, then type) instead of one flat click. For someone who lives in "Board Games" specifically, that's a small regression versus today's single click — the win is entirely about not degrading as more types get added.
+    </div>
+  </div>
+
+  <!-- ================= YOUR SUGGESTION: FIT TO WINDOW ================= -->
+  <div class="view-block" id="view-fit">
+    <div class="mode-label">No horizontal scrollbar — content wraps to a second line instead. Media type tabs reduced to All / More for now — use + to choose which types More offers.</div>
+
+    <div class="width-presets">
+      <span class="lbl">Simulated window width</span>
+      <!-- Each preset is independent — its width lives only on its own button, edit any one without touching the others. -->
+      <span id="preset-fullscreen" class="width-btn" data-w="1440" onclick="setFitWidth(this)">Full Screen &middot; 1440px</span>
+      <span id="preset-laptop" class="width-btn active" data-w="1024" onclick="setFitWidth(this)">Laptop &middot; 1024px</span>
+      <span id="preset-tablet" class="width-btn" data-w="768" onclick="setFitWidth(this)">Tablet &middot; 768px</span>
+      <span id="preset-mobile" class="width-btn" data-w="375" onclick="setFitWidth(this)">Mobile &middot; 375px</span>
+      <span id="width-readout" style="font-family: var(--font-mono); font-size: 10.5px; color: var(--dim); margin-left: 4px;">1024px &mdash; drag the handle &#8594;</span>
+    </div>
+
+    <div style="position: relative; display: inline-block; max-width: 100%;">
+      <div class="resize-frame" id="fit-frame" style="width: 1024px; max-width: 100%;">
+      <div class="row1 fit-wrap">
+        <div class="divider-group" id="wordmark-group">
+          <div class="wordmark">The Media Vault</div>
+        </div>
+        <div class="divider-group" id="status-group">
+          <span class="stat-pill active" id="status-cycle-pill" data-i="2" title="Click to cycle: All / Watch·Wish / In Progress / Rated / Completed" onclick="cycleStatusPill(this)" style="--pill-color: var(--progress);"><span class="n">31</span><span class="l">in progress</span><span class="cycle-icon" style="color: var(--bg); opacity: 0.6; font-size: 9px; margin-left: 1px;">&#8635;</span></span>
+          <span class="stat-pill" style="--pill-color: var(--purple);"><span class="n">2</span><span class="l">owned</span></span>
+        </div>
+        <div class="divider-group" id="mediatype-group">
+          <div class="tab-group" id="fit-tab-group" style="border-right: none; padding-right: 0;">
+            <span class="tab-btn active" id="all-tab" style="color: var(--accent); border-bottom-color: var(--accent);">All</span>
+            <div class="more-wrapper" style="position: relative;">
+              <span class="tab-btn" id="more-tab" onclick="toggleMoreMenu(event)" style="color: var(--muted);">&#8943; More</span>
+              <div id="more-menu" style="display: none; position: absolute; top: 28px; left: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; min-width: 150px; box-shadow: 0 12px 30px rgba(0,0,0,0.5); z-index: 20; overflow: hidden;">
+                <div id="more-menu-items"></div>
+                <div id="more-menu-empty" style="display: none; padding: 9px 12px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); max-width: 160px; white-space: normal;">Nothing checked yet — use &#43; to choose which types show up here.</div>
+              </div>
+            </div>
+          </div>
+          <div class="types-picker-wrapper" style="position: relative;">
+            <span class="stepper-btn" onclick="toggleTypesPicker(event)" title="Choose which media types appear in the More menu" aria-label="Choose media types">&plus;</span>
+            <div id="types-picker" style="display: none; position: absolute; top: 26px; left: 0; background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; min-width: 170px; box-shadow: 0 12px 30px rgba(0,0,0,0.5); z-index: 20; overflow: hidden;">
+              <div style="padding: 8px 12px; font-family: var(--font-mono); font-size: 9.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border);">Show in More</div>
+              <div id="types-picker-items"></div>
+            </div>
+          </div>
+        </div>
+        <div class="divider-group" id="tile-controls-group">
+          <span class="cycle-btn" title="Tile size">M</span>
+          <span class="cycle-btn" title="Spacing">&middot;&middot;</span>
+          <span class="cycle-btn" title="Overlay">TI</span>
+          <div class="view-toggle">
+            <span class="icon-btn" style="border: none; color: var(--text);">&#8862;</span>
+            <span class="icon-btn" style="border: none;">&#9776;</span>
+          </div>
+          <span class="icon-btn" id="fit-stats-btn" title="Stats"><svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 8 L8 1.5 A6.5 6.5 0 0 1 14.5 8 Z" fill="currentColor"/></svg></span>
+        </div>
+        <div class="spacer"></div>
+        <span class="icon-btn" id="settings-btn" title="Settings">&#9881;</span>
+      </div>
+      <div class="row2 fit-wrap">
+        <div class="row2-line" id="row2-line1">
+        <div class="row2-part" id="row2-part-a">
+          <div class="filter-wrapper" style="position: relative;">
+            <span class="ghost-btn" onclick="toggleFilterMenu(event)">Filter &#9662;</span>
+            <div id="filter-menu" class="filter-menu-panel">
+              <div class="filter-field"><span class="filter-label">Genre</span><span class="select-like">All Genres</span></div>
+              <div class="filter-field"><span class="filter-label">Age Rating</span><span class="select-like">All Age Ratings</span></div>
+              <div class="filter-field"><span class="filter-label">Lists</span><span class="select-like">All Lists</span></div>
+              <div class="filter-field"><span class="filter-label">Rating</span><span class="select-like">Any Rating</span></div>
+              <div class="filter-field"><span class="filter-label">Critic</span><span class="select-like">Any Critic Rating</span></div>
+              <div class="filter-field"><span class="filter-label">Watch On</span><span class="select-like">Where to Watch</span></div>
+            </div>
+          </div>
+          <span class="region-btn" id="fit-region-btn">US</span>
+          <div class="sort-wrapper" style="position: relative;">
+            <span class="ghost-btn" id="sort-btn" onclick="toggleSortMenu(event)">Sort: Recently Added &#9662;</span>
+            <div id="sort-menu" class="more-menu-panel">
+              <div class="more-menu-item sort-item active" onclick="selectSort(this,'Recently Added')">Recently Added</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'A–Z')">A&ndash;Z</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Z–A')">Z&ndash;A</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Rating ↓')">Rating &#8595;</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Rating ↑')">Rating &#8593;</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Critic Rating ↓')">Critic Rating &#8595;</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Critic Rating ↑')">Critic Rating &#8593;</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Year ↓')">Year &#8595;</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Year ↑')">Year &#8593;</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Runtime ↓')">Runtime &#8595;</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Runtime ↑')">Runtime &#8593;</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Creator A–Z')">Creator A&ndash;Z</div>
+              <div class="more-menu-item sort-item" onclick="selectSort(this,'Series')">Series</div>
+            </div>
+          </div>
+        </div>
+          <div class="vdiv" id="row2-vdiv"></div>
+          <span class="ghost-btn" id="online-search-btn">&#8981; Online Search</span>
+        </div>
+        <div class="row2-line" id="row2-line2">
+          <div class="search-box" id="local-search-box"><input placeholder="Search…"><span class="icon">&#8981;</span></div>
+        </div>
+      </div>
+      </div>
+      <div id="resize-handle" title="Drag to resize" style="position: absolute; top: 0; right: -9px; width: 18px; height: 100%; cursor: ew-resize; display: flex; align-items: center; justify-content: center;">
+        <div style="width: 4px; height: 40px; border-radius: 3px; background: var(--border);"></div>
+      </div>
+    </div>
+
+    <div class="callout good">
+Row 1 switches from <b>overflow-x: auto</b> to <b>flex-wrap: wrap</b> — at any window width, content that doesn't fit drops to a new line instead of requiring a sideways scroll to discover it exists (wordmark | status/owned | media type | tile &amp; layout controls | stats/settings — Settings opens its own full popup, same as today, not a small dropdown). Row 2 is two deliberate stacked lines rather than one wrapping line: line 1 is Filter, Country, Sort, Online Search with no divider between them; line 2 is Local Search alone, always full width. Try the width presets above to see it reflow — nothing is ever clipped or hidden behind a scrollbar.
+    </div>
+    <div class="callout">
+      Media type tabs are cut down to just <b>All</b> and <b>More</b> for now, per your note — this sidesteps the "how many tabs fit" question entirely while wrapping is being validated, rather than solving type-scaling and layout-wrapping at the same time. <b>+</b> opens a checklist of every type — whatever's checked is what <b>More</b> offers. Picking one from More promotes it into the All slot; unchecking it there reverts All back to plain "All". The grouped-category idea from the other tab is still there if you want to bring it back in once this fits.
+    </div>
+
+    <div class="mode-label" style="margin-top: 24px;">Final config — desktop layout (Tablet/Mobile breakpoint behavior not covered by this spec)</div>
+    <div class="spec-box">
+      <div class="spec-row-header">Row 1</div>
+      <table class="spec-table">
+        <tr><td>1</td><td>Wordmark</td><td>"The Media Vault"</td></tr>
+        <tr><td colspan="3"><span class="spec-div">divider</span></td></tr>
+        <tr><td>2</td><td>Status / Owned</td><td>Status cycles through All / Watch·Wish / In Progress / Rated / Completed on click, fixed 98px width so it never resizes. Owned is separate, its own toggle.</td></tr>
+        <tr><td colspan="3"><span class="spec-div">divider</span></td></tr>
+        <tr><td>3</td><td>Media type</td><td>All, More (opens a menu of whatever's checked in the <b>+</b> picker), <b>+</b> (checklist of every type)</td></tr>
+        <tr><td colspan="3"><span class="spec-div">divider</span></td></tr>
+        <tr><td>4</td><td>Tile &amp; layout controls</td><td>Tile size, Spacing, Overlay cyclers, Tile/List view toggle, Stats (pie chart) — grouped together, no longer scattered</td></tr>
+        <tr><td>5</td><td><i>(spacer — fills remaining space)</i></td><td></td></tr>
+        <tr><td>6</td><td>Settings</td><td>Plain icon button, opens its own full popup (unchanged from today) — not a dropdown</td></tr>
+      </table>
+
+      <div class="spec-row-header" style="margin-top: 14px;">Row 2 — line 1</div>
+      <table class="spec-table">
+        <tr><td>1</td><td>Filter</td><td>Opens a panel with Genre, Age Rating, Lists, Rating, Critic Rating, Where to Watch — replaces 6 separate selects</td></tr>
+        <tr><td>2</td><td>Country</td><td>Fixed 26&times;26, same size as Settings</td></tr>
+        <tr><td>3</td><td>Sort</td><td>Fixed 110px width regardless of selected option (ellipsis-truncated) — opens a list of all 13 real sort orders</td></tr>
+        <tr><td colspan="3"><span class="spec-div">divider</span></td></tr>
+        <tr><td>4</td><td>Online Search</td><td>Fixed width. Its right edge is JS-aligned to match the Stats button's right edge on row 1 (measured live, not a fixed offset — see <code>alignOnlineSearchWithStats()</code>)</td></tr>
+      </table>
+
+      <div class="spec-row-header" style="margin-top: 14px;">Row 2 — line 2</div>
+      <table class="spec-table">
+        <tr><td>1</td><td>Local Search</td><td>Always alone on its own full-width line — a deliberate second line, not incidental wrapping</td></tr>
+      </table>
+
+      <div class="spec-row-header" style="margin-top: 14px;">Sizing rule that applies everywhere on row 2</div>
+      <div style="padding: 6px 2px; font-size: 12px; color: var(--dim); line-height: 1.6;">Every control — Filter, Country, Sort, the divider, Online Search, Local Search — is exactly <b>26px</b> tall, matching Country. This required setting height explicitly on both the buttons <i>and</i> their position:relative wrapper divs (Filter/Sort) — the wrapper alone can end up a few px taller than its button due to ordinary inline-formatting line-height slack, which throws things out of level even when every visible button reports the same 26px.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function setMode(btn) {
+  document.querySelectorAll('.mode-btn').forEach(function (b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var mode = btn.getAttribute('data-mode');
+  document.querySelectorAll('.view-block').forEach(function (v) { v.classList.remove('active'); });
+  document.getElementById('view-' + mode).classList.add('active');
+}
+
+function setCategory(btn) {
+  document.querySelectorAll('#category-tabs .tab-btn').forEach(function (b) {
+    b.classList.remove('active');
+    b.style.borderBottomColor = 'transparent';
+    b.style.color = 'var(--muted)';
+  });
+  btn.classList.add('active');
+  var cat = btn.getAttribute('data-cat');
+  var colorMap = { all: 'var(--accent)', watch: 'var(--blue)', read: '#e87a4b', listen: '#f472b6', play: '#4be8c8', other: 'var(--dim)' };
+  btn.style.color = colorMap[cat];
+  btn.style.borderBottomColor = colorMap[cat];
+
+  document.querySelectorAll('.row3').forEach(function (r) { r.style.display = 'none'; });
+  if (cat !== 'all') {
+    var row = document.querySelector('.row3[data-cat="' + cat + '"]');
+    if (row) row.style.display = 'flex';
+  }
+}
+
+var STATUS_CYCLE = [
+  { n: 281, l: 'all', color: 'var(--accent)' },
+  { n: 232, l: 'watch/wish', color: 'var(--blue)' },
+  { n: 31, l: 'in progress', color: 'var(--progress)' },
+  { n: 18, l: 'rated', color: 'var(--accent)' },
+  { n: 18, l: 'completed', color: 'var(--seen)' },
+];
+
+// Every media type. The + popup is a checklist against this pool; whatever's checked is
+// what "More" offers. No individual tabs get added to the row — More is the only place
+// types appear until one is promoted into the All slot.
+var TYPE_TAB_POOL = [
+  { icon: '&#127916;', label: 'Movies' },
+  { icon: '&#128250;', label: 'TV' },
+  { icon: '&#128214;', label: 'Books' },
+  { icon: '&#127918;', label: 'Games' },
+  { icon: '&#127925;', label: 'Music' },
+  { icon: '&#127911;', label: 'Audiobooks' },
+  { icon: '&#127922;', label: 'Board Games' },
+];
+// Pre-checked with a couple of types so More isn't empty on first load.
+var enabledTypes = [true, true, false, false, false, false, false];
+
+// Currently promoted into the All slot (or null if All still just means All).
+var promotedPoolIndex = null;
+
+function toggleTypesPicker(event) {
+  event.stopPropagation();
+  var panel = document.getElementById('types-picker');
+  var opening = panel.style.display !== 'block';
+  if (opening) {
+    var itemsEl = document.getElementById('types-picker-items');
+    itemsEl.innerHTML = '';
+    TYPE_TAB_POOL.forEach(function (t, idx) {
+      var row = document.createElement('label');
+      row.className = 'type-check-row';
+      var cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = enabledTypes[idx];
+      cb.onclick = function (e) { e.stopPropagation(); onTypeCheckToggle(idx, cb.checked); };
+      row.appendChild(cb);
+      var label = document.createElement('span');
+      label.innerHTML = t.icon + ' ' + t.label;
+      row.appendChild(label);
+      row.onclick = function (e) { if (e.target !== cb) { cb.checked = !cb.checked; onTypeCheckToggle(idx, cb.checked); } };
+      itemsEl.appendChild(row);
+    });
+  }
+  panel.style.display = opening ? 'block' : 'none';
+}
+
+function onTypeCheckToggle(idx, checked) {
+  enabledTypes[idx] = checked;
+  // Unchecking the type currently shown in the All slot reverts All back to plain "All".
+  if (!checked && idx === promotedPoolIndex) {
+    promotedPoolIndex = null;
+    document.getElementById('all-tab').textContent = 'All';
+  }
+}
+
+// "More" lists whichever types are currently checked — picking one promotes it into the
+// "All" slot. Whatever type was previously promoted (if any) becomes available again.
+function toggleMoreMenu(event) {
+  event.stopPropagation();
+  var menu = document.getElementById('more-menu');
+  var opening = menu.style.display !== 'block';
+  if (opening) {
+    var itemsEl = document.getElementById('more-menu-items');
+    itemsEl.innerHTML = '';
+    TYPE_TAB_POOL.forEach(function (t, idx) {
+      if (!enabledTypes[idx] || idx === promotedPoolIndex) return;
+      var item = document.createElement('div');
+      item.className = 'more-menu-item';
+      item.innerHTML = t.icon + ' ' + t.label;
+      item.onclick = function () { selectTypeForAll(idx); };
+      itemsEl.appendChild(item);
+    });
+    document.getElementById('more-menu-empty').style.display = itemsEl.children.length ? 'none' : 'block';
+  }
+  menu.style.display = opening ? 'block' : 'none';
+}
+document.addEventListener('click', function () {
+  var menu = document.getElementById('more-menu');
+  if (menu) menu.style.display = 'none';
+  var picker = document.getElementById('types-picker');
+  if (picker) picker.style.display = 'none';
+  var filterMenu = document.getElementById('filter-menu');
+  if (filterMenu) filterMenu.style.display = 'none';
+  var sortMenu = document.getElementById('sort-menu');
+  if (sortMenu) sortMenu.style.display = 'none';
+});
+
+// Genre/Age Rating/Lists/Rating/Critic/Where to Watch all live inside one Filter dropdown
+// now, instead of six separate selects taking up the whole row.
+function toggleFilterMenu(event) {
+  event.stopPropagation();
+  var menu = document.getElementById('filter-menu');
+  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+}
+
+// Same pattern as Filter, but a single-select list rather than several fields — only one
+// sort order applies at a time.
+function toggleSortMenu(event) {
+  event.stopPropagation();
+  var menu = document.getElementById('sort-menu');
+  menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+}
+
+function selectSort(el, label) {
+  document.querySelectorAll('.sort-item').forEach(function (i) { i.classList.remove('active'); });
+  el.classList.add('active');
+  document.querySelector('.sort-wrapper .ghost-btn').innerHTML = 'Sort: ' + label + ' &#9662;';
+  document.getElementById('sort-menu').style.display = 'none';
+}
+
+function selectTypeForAll(poolIndex) {
+  var t = TYPE_TAB_POOL[poolIndex];
+  document.getElementById('all-tab').innerHTML = t.icon + ' ' + t.label;
+  promotedPoolIndex = poolIndex;
+  document.getElementById('more-menu').style.display = 'none';
+  // The All tab's label just changed width, which moves Stats — realign row 2 to match.
+  alignOnlineSearchWithStats();
+}
+
+function cycleStatusPill(el) {
+  var i = (parseInt(el.getAttribute('data-i'), 10) + 1) % STATUS_CYCLE.length;
+  el.setAttribute('data-i', i);
+  var s = STATUS_CYCLE[i];
+  el.style.setProperty('--pill-color', s.color);
+  el.querySelector('.n').textContent = s.n;
+  el.querySelector('.l').textContent = s.l;
+  el.title = 'Click to cycle: All / Watch·Wish / In Progress / Rated / Completed — currently ' + s.l;
+}
+
+function setFitWidth(btn) {
+  document.querySelectorAll('.width-btn').forEach(function (b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  var w = parseInt(btn.getAttribute('data-w'), 10);
+  document.getElementById('fit-frame').style.width = w + 'px';
+  document.getElementById('width-readout').textContent = w + 'px';
+  alignOnlineSearchWithStats();
+}
+
+// Pads the gap between Sort and Online Search (both on row 2's first line, no divider
+// between them) so Online Search ends exactly where the Stats button ends on row 1.
+//
+// This is measured in JS rather than done in CSS because row 1 and row 2 are independent
+// flex lines: Stats' x-position is the sum of four content-sized groups plus a spacer that
+// absorbs a variable amount of slack, and no CSS rule can reference that from another row.
+// (In a real build the robust equivalent is putting both rows in one CSS Grid so they share
+// column tracks — worth doing there, overkill for judging the look here.)
+function alignOnlineSearchWithStats() {
+  var stats = document.getElementById('fit-stats-btn');
+  var partA = document.getElementById('row2-part-a');
+  var online = document.getElementById('online-search-btn');
+  if (!stats || !partA || !online) return;
+
+  partA.style.width = '';               // reset to natural width before measuring
+
+  var delta = stats.getBoundingClientRect().right - online.getBoundingClientRect().right;
+  var target = partA.getBoundingClientRect().width + delta;
+
+  // Only pad outward. If Stats sits left of where Online Search naturally starts, there's
+  // no width that fixes it without overlapping, so stay at natural width.
+  if (delta > 0) partA.style.width = target + 'px';
+}
+
+window.addEventListener('resize', alignOnlineSearchWithStats);
+window.addEventListener('load', alignOnlineSearchWithStats);
+alignOnlineSearchWithStats();
+
+(function () {
+  var frame = document.getElementById('fit-frame');
+  var handle = document.getElementById('resize-handle');
+  var readout = document.getElementById('width-readout');
+  if (!handle) return;
+  var dragging = false, startX = 0, startWidth = 0;
+  var MIN_W = 320, MAX_W = 1440;
+
+  handle.addEventListener('pointerdown', function (e) {
+    dragging = true;
+    startX = e.clientX;
+    startWidth = frame.getBoundingClientRect().width;
+    handle.setPointerCapture(e.pointerId);
+    document.querySelectorAll('.width-btn').forEach(function (b) { b.classList.remove('active'); });
+  });
+  handle.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var w = Math.min(MAX_W, Math.max(MIN_W, startWidth + (e.clientX - startX)));
+    frame.style.width = w + 'px';
+    readout.textContent = Math.round(w) + 'px';
+    alignOnlineSearchWithStats();
+  });
+  handle.addEventListener('pointerup', function () { dragging = false; });
+  handle.addEventListener('pointercancel', function () { dragging = false; });
+})();
+</script>

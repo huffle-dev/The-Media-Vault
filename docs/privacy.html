@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Media Vault — Privacy notice</title>
+<style>
+  :root { color-scheme: light dark; --bg:#fafaf7; --ink:#1b1d22; --muted:#5a5f6b; --rule:#d9dbe1; --accent:#8a5a00; --wash:#fff3d6; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#101116; --ink:#e7e8ec; --muted:#9aa0ad; --rule:#2b2e38; --accent:#e3aa26; --wash:#2a2312; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.65 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width: 46rem; margin: 0 auto; padding: 2.5rem 1.25rem 4rem; }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 .25rem; }
+  h2 { font-size: 1.15rem; margin: 2.2rem 0 .4rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+  p, li { max-width: 40rem; }
+  .meta { color: var(--muted); font-size: .9rem; margin-bottom: 1.5rem; }
+  .draft { background: var(--wash); border-left: 4px solid var(--accent); padding: .7rem 1rem; margin: 1rem 0 1.5rem; font-size: .95rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .93rem; margin: .6rem 0; }
+  th, td { text-align: left; vertical-align: top; padding: .5rem .6rem; border-bottom: 1px solid var(--rule); }
+  th { color: var(--muted); font-weight: 600; font-size: .8rem; text-transform: uppercase; letter-spacing: .05em; }
+  code { background: color-mix(in srgb, var(--rule) 55%, transparent); padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+</style>
+</head>
+<body>
+<main>
+<h1>Privacy notice</h1>
+<div class="meta">The Media Vault · last updated 5 October 2026</div>
+
+<div class="draft">This is a plain description of what the app actually does today. It is written by the app's maker, not by a lawyer, and is not legal advice.</div>
+
+<p>The Media Vault is a personal library for the things you watch, read, play and listen to. The short version: <strong>your library stays on your own devices and on a server you set up yourself. The people who make the app run no server, collect nothing about you, and cannot see your library.</strong></p>
+
+<h2>What is stored, and where</h2>
+<table>
+<tr><th>What</th><th>Where</th></tr>
+<tr><td>Your library (titles, ratings, notes, lists, dates, cover pictures) and your settings</td><td>On your computer, in the app's data folder (<code>%APPDATA%\the-vault</code>). It stays there if you uninstall the app.</td></tr>
+<tr><td>Passwords and keys the app has to remember: your Steam and GOG sign-ins, your Supabase sign-in, the Gemini and IGDB secrets, the key that unlocks your synced keys</td><td>On your computer, encrypted with Windows' own protection for your user account.</td></tr>
+<tr><td>API keys you paste in for TMDB, Discogs and YouTube</td><td>On your computer. If you turn on encrypted key sync, an encrypted copy also goes to your own server (see below); the passphrase never leaves your devices.</td></tr>
+<tr><td>On your phone: your sign-in, a saved copy of your library list and of the details and covers you have looked at (everything, if you turn on Offline use), the API keys you unlocked or pasted, your GOG sign-in if you turn that on, and a few settings</td><td>On the phone. The sign-in and keys are in the phone's protected storage; the sign-in is also encrypted at rest.</td></tr>
+</table>
+
+<h2>Sync, and the server that belongs to you</h2>
+<p>Syncing between your computer and your phone happens through a <strong>Supabase project that you create and own</strong>. If you set it up, these go there: your library items, lists, custom media types, Discover "not interested" choices, which items you own and on which device, the phone's problems log (only if you press Send log to my computer), the name of each device you sync from (your computer's name and "desktop" or "phone"), the accent, status and media-type colours you chose, your API keys <em>encrypted so the server only ever holds ciphertext</em> (TMDB, Discogs, YouTube, IGDB, Gemini and Steam), and small copies of cover pictures that have no public source or that you replaced from the phone.</p>
+<ul>
+<li>The cover thumbnails are in a storage bucket that anyone holding a picture's exact address can view. The address is two random identifiers and cannot be guessed or listed.</li>
+<li>Everything else is protected by row-level security so only your account can read or change it.</li>
+<li>Supabase handles that project under its own terms and privacy policy. You can delete the project, or any row in it, at any time from the Supabase dashboard.</li>
+</ul>
+<p>If you never set up a server, nothing is ever uploaded.</p>
+
+<h2>What leaves your computer when you use the app</h2>
+<p>The app asks other services for information when you ask it to. What each one receives:</p>
+<table>
+<tr><th>Service</th><th>When</th><th>What it receives</th></tr>
+<tr><td>TMDB</td><td>Movie / TV search, details, recommendations</td><td>The title or id you looked up, your TMDB key</td></tr>
+<tr><td>Steam</td><td>Importing your library, store search</td><td>Your Steam ID and API key (for the import), or the title you searched</td></tr>
+<tr><td>IGDB (Twitch)</td><td>Game search</td><td>The title, your Twitch client id and secret</td></tr>
+<tr><td>YouTube</td><td>Web Video search and lookups</td><td>What you searched or pasted, your YouTube API key</td></tr>
+<tr><td>Discogs, Apple (iTunes), Open Library, Audible, BoardGameGeek, GOG</td><td>Searching and looking up those types</td><td>The title or id you looked up (and your Discogs token or GOG sign-in where you set one)</td></tr>
+<tr><td>Google Gemini</td><td><strong>Only</strong> if you use "Scan Photo" or AI column mapping on an import</td><td>The photo you chose, or the column names and a few sample rows of your file, plus your Gemini key</td></tr>
+<tr><td>Picture hosts (TMDB, Amazon, Steam, YouTube, Discogs…)</td><td>Showing and downloading cover art</td><td>Your computer's IP address, as with any web page</td></tr>
+</table>
+<p>The app does not include analytics, advertising, tracking or crash reporting. "Send Error Report" in the Help menu only opens a pre-filled page in your web browser (with the app version and Windows version); nothing is sent unless you submit it.</p>
+
+<h2>Your choices</h2>
+<ul>
+<li><strong>Export</strong> your whole library from Settings → Export, at any time.</li>
+<li><strong>Delete</strong> your data by deleting the app's data folder, and the server copy by deleting your Supabase project or its rows.</li>
+<li><strong>Sign out / disconnect</strong> from sync in Settings → Cloud Sync.</li>
+<li>Every key is optional; without one, the part of the app that needs it simply stays off.</li>
+</ul>
+
+<h2>Changes and contact</h2>
+<p>If this notice changes in a way that matters, the new version ships with the app and the date above changes. Questions: open an issue at <a href="https://github.com/huffle-dev/The-Media-Vault/issues">https://github.com/huffle-dev/The-Media-Vault/issues</a> (for anything private, use GitHub's private security reporting on the same repository).</p>
+</main>
+</body>
+</html>

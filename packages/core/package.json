@@ -1,0 +1,7 @@
+{
+  "name": "@media-vault/core",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Platform-agnostic logic shared between the desktop app and the mobile companion app: response parsing, formatting, and validation with no Node or Electron dependency.",
+  "main": "index.js"
+}

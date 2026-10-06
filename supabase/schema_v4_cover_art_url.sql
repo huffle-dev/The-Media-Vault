@@ -1,0 +1,12 @@
+-- Follow-up to schema_v2_cloud_sync.sql — run once, after the earlier files.
+--
+-- cover_art_url: the remote image URL an item's cover art was downloaded
+-- from (TMDB, Open Library, Audible, Steam, BGG, etc.). Synced so every
+-- device can download its own local copy straight from the link, without
+-- repeating the source-API lookup that found it — and so types a device
+-- can't search itself (e.g. Board Game on mobile) still get art.
+--
+-- cover_art_path (the local file) stays unsynced; each device keeps its own.
+-- Nullable with no default: existing rows get it as desktop re-syncs them.
+-- Existing row-level-security policies on items already cover this column.
+alter table items add column if not exists cover_art_url text;

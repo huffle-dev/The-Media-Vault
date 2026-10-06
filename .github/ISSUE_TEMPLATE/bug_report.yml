@@ -1,0 +1,36 @@
+name: Bug report
+description: Something doesn't work the way it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. If this is a **security** problem, please don't post it here: see SECURITY.md.
+  - type: dropdown
+    id: app
+    attributes:
+      label: Which app?
+      options: [Windows app, Android app, Both / not sure]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Windows app, Help → About & Credits. Android app, Settings → About & credits.
+  - type: input
+    id: system
+    attributes:
+      label: Windows version or Android phone and version
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Screenshots help. Please remove anything private (keys, your library) first.

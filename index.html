@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- CSP: no remote scripts, no inline eval; img-src allows BGG's, TMDB's,
+       AniList's, YouTube's, Apple Podcasts' (mzstatic, subdomain varies e.g.
+       is1/is2/is3), Open Library's, GOG's, Steam's, Discogs', and Audible's (m.media-amazon.com) image CDNs for
+       search-result thumbnails (the actual network requests all run in the main process,
+       not here — this only covers <img> tags).
+       covers.openlibrary.org itself sometimes 302s straight to a numbered
+       {ia######}.us.archive.org node, sometimes via an intermediate archive.org
+       hop first (verified live, varies per cover id) — both archive.org entries
+       are needed, not just openlibrary.org.
+       Steam's header images are served off *.steamstatic.com (verified live:
+       shared.akamai.steamstatic.com), wildcarded since Steam fronts the same
+       CDN through more than one subdomain.
+       Discogs' search-result thumbnails (verified live, once an API key is set)
+       are served off i.discogs.com, a resizing proxy in front of their real
+       image store — not discogs.com itself.
+       IGDB's search-result thumbnails are served off images.igdb.com —
+       missed when IGDB was first integrated (only the server-side
+       downloaded-to-file path was covered), found live via a real broken-
+       image report in Search Online's own results list. -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://cf.geekdo-images.com https://image.tmdb.org https://s4.anilist.co https://yt3.googleusercontent.com https://yt3.ggpht.com https://i.ytimg.com https://*.mzstatic.com https://covers.openlibrary.org https://archive.org https://*.archive.org https://images.gog-statics.com https://*.steamstatic.com https://i.discogs.com https://images.igdb.com https://m.media-amazon.com;" />
+  <title>The Media Vault</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root {
+      height: 100%;
+      background: #09090e;
+      color: #ddddf0;
+      font-family: 'DM Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      overflow: hidden;
+    }
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 99px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3a3a4a; }
+    /* Remove default input/select/textarea appearance */
+    input, select, textarea, button {
+      font-family: inherit;
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.5);
+    }
+    /* Skeleton placeholder pulse — used by the Item Profile "Similar To" and
+       "More from ..." rows while their external lookups are in flight. Only
+       the animation lives here; the fill colour is set inline from the theme
+       token (T.surface2) so this works in both light and dark themes. */
+    @keyframes skel-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.85; } }
+    .skel-pulse { animation: skel-pulse 1.4s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .skel-pulse { animation: none; opacity: 0.6; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="./index.jsx"></script>
+</body>
+</html>

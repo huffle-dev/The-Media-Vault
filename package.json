@@ -1,0 +1,118 @@
+{
+  "name": "the-vault",
+  "version": "1.0.0",
+  "description": "Personal media tracker — movies, TV, books, games, audiobooks, music",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/huffle-dev/The-Media-Vault.git"
+  },
+  "homepage": "https://github.com/huffle-dev/The-Media-Vault#readme",
+  "bugs": {
+    "url": "https://github.com/huffle-dev/The-Media-Vault/issues"
+  },
+  "main": "main.js",
+  "workspaces": [
+    "packages/*",
+    "mobile"
+  ],
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build-renderer": "npx vite build",
+    "test": "cross-env ELECTRON_RUN_AS_NODE=1 electron node_modules/vitest/vitest.mjs run",
+    "test:e2e": "npm run build-renderer && vitest run -c vitest.e2e.config.mjs",
+    "dist": "npm run licenses && npm run build-renderer && electron-builder --win --publish never",
+    "pack": "npm run licenses && npm run build-renderer && electron-builder --win dir --publish never",
+    "test:e2e:packed": "npm run pack && cross-env E2E_EXE=\"release/win-unpacked/The Media Vault.exe\" vitest run -c vitest.e2e.config.mjs",
+    "licenses": "node scripts/build-licenses.js",
+    "demo:build": "vite build --config demo/vite.config.mjs",
+    "demo:dev": "vite --config demo/vite.config.mjs",
+    "demo:phone": "node scripts/build-phone-demo.js",
+    "demo:phone:dev": "node scripts/dev-phone-demo.js"
+  },
+  "dependencies": {
+    "@media-vault/core": "*",
+    "@supabase/supabase-js": "^2.116.0",
+    "@tanstack/react-virtual": "^3.14.13",
+    "archiver": "^8.0.0",
+    "better-sqlite3": "^13.0.2",
+    "yauzl": "^3.4.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "cross-env": "^10.1.0",
+    "electron": "44.5.1",
+    "electron-builder": "^26.15.3",
+    "jsdom": "^30.1.2",
+    "playwright-core": "^1.63.0",
+    "qrcode-generator": "^2.0.4",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.3"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.0.3": true,
+    "electron@44.5.1": true
+  },
+  "build": {
+    "appId": "app.mediavault.desktop",
+    "productName": "The Media Vault",
+    "copyright": "Copyright © 2026",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "database.js",
+      "lib/**",
+      "services/**",
+      "dist/**",
+      "supabase/schema_current.sql",
+      "package.json",
+      "!**/node_modules/better-sqlite3/prebuilds/{darwin-*,linux-*,linuxmusl-*,win32-arm64}.node"
+    ],
+    "asarUnpack": [
+      "**/node_modules/better-sqlite3/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false,
+      "createDesktopShortcut": false,
+      "shortcutName": "The Media Vault",
+      "artifactName": "TheMediaVault-Setup-${version}.exe"
+    },
+    "npmRebuild": false,
+    "extraResources": [
+      {
+        "from": "build/THIRD_PARTY_LICENSES.txt",
+        "to": "THIRD_PARTY_LICENSES.txt"
+      },
+      {
+        "from": "docs/privacy.html",
+        "to": "privacy.html"
+      }
+    ]
+  },
+  "author": "The Media Vault"
+}
