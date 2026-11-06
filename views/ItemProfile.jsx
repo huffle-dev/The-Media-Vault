@@ -921,6 +921,25 @@ export default function ItemProfile({
   const externalCreatorWorks = rawExternalCreatorWorks.filter(w =>
     !inLibraryTitles.has(w.title.toLowerCase()) && !inLibraryTmdbIds.has(String(w.id))
   );
+  // An in-library item as a "More from" tile (real cover, personal rating, opens its profile).
+  const renderCreatorLibraryTile = (i) => {
+    const iCfg = getEffectiveTypeConfig(i, customTypes);
+    const iGenre = (i.genre || "").split(",").map(g => g.trim()).filter(Boolean)[0];
+    return (
+      <CreatorWorkTile
+        key={`lib-${i.id}`}
+        title={i.title}
+        year={i.year}
+        posterUrl={i.cover_art_path ? `file://${i.cover_art_path}` : null}
+        icon={iCfg.icon}
+        ratingLabel={i.rating != null ? formatRating(i.rating) : null}
+        ratingColor={ratingColor(i.rating)}
+        genre={iGenre}
+        square={isSquareArt(i.media_type)}
+        onClick={() => onSelectItem(i)}
+      />
+    );
+  };
 
   // "More in this series" — same shape as "More From Creator" above, but
   // for a TMDB collection instead of a person. Film only — TMDB collections
@@ -1573,7 +1592,7 @@ export default function ItemProfile({
         </div>
       )}
 
-      {(moreFromCreator.length > 0 || externalCreatorWorks.length > 0 || externalCreatorLoading) && (
+      {(moreFromCreator.length > 0 || rawExternalCreatorWorks.length > 0 || externalCreatorLoading) && (
         <div style={{ padding: "0 34px 34px" }}>
           <div style={{ borderBottom: `1px solid ${T.border}`, paddingBottom: 8, marginBottom: 14, color: T.accent, fontSize: 11, fontFamily: T.fontMono, textTransform: "uppercase", letterSpacing: "0.06em" }}>
             {isYoutubeChannel ? `Recent uploads from ${localItem.creator}` : `More from ${localItem.creator}`}
@@ -1582,25 +1601,18 @@ export default function ItemProfile({
             )}
           </div>
           <div style={{ display: "flex", gap: 14, overflowX: "auto", paddingBottom: 4 }}>
-            {moreFromCreator.map(i => {
-              const iCfg = getEffectiveTypeConfig(i, customTypes);
-              const iGenre = (i.genre || "").split(",").map(g => g.trim()).filter(Boolean)[0];
+            {moreFromCreator.map(renderCreatorLibraryTile)}
+            {onQuickAdd && rawExternalCreatorWorks.map(w => {
+              // A title quick-added from this row is now in the library but may be
+              // stored under a different creator string, so it isn't in
+              // moreFromCreator. Keep it where it was as a normal library tile
+              // rather than letting it vanish.
+              const owned = inLibraryItemByTitle.get(w.title.toLowerCase()) || inLibraryItemByTmdbId.get(String(w.id));
+              if (owned) {
+                if (owned.id === localItem.id || moreFromCreator.some(i => i.id === owned.id)) return null;
+                return renderCreatorLibraryTile(owned);
+              }
               return (
-                <CreatorWorkTile
-                  key={`lib-${i.id}`}
-                  title={i.title}
-                  year={i.year}
-                  posterUrl={i.cover_art_path ? `file://${i.cover_art_path}` : null}
-                  icon={iCfg.icon}
-                  ratingLabel={i.rating != null ? formatRating(i.rating) : null}
-                  ratingColor={ratingColor(i.rating)}
-                  genre={iGenre}
-                  square={isSquareArt(i.media_type)}
-                  onClick={() => onSelectItem(i)}
-                />
-              );
-            })}
-            {onQuickAdd && externalCreatorWorks.map(w => (
               <CreatorWorkTile
                 key={`ext-${w.id}`}
                 title={w.title}
@@ -1621,8 +1633,9 @@ export default function ItemProfile({
                 onClick={() => handleTileClick(w)}
                 onQuickAdd={() => handleQuickAdd(w)}
               />
-            ))}
-            {externalCreatorLoading && Array.from({ length: 4 }, (_, i) => (
+              );
+            })}
+            {externalCreatorLoading &&Array.from({ length: 4 }, (_, i) => (
               <SkeletonWorkTile key={`skel-${i}`} square={isSquareArt(localItem.media_type)} />
             ))}
           </div>
